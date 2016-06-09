@@ -32,6 +32,8 @@ $(document).ready(function(){
   var imageBounds;
   // url for overlay image
   var imgURL;
+  // map center
+  var center;
 
   // this is for mouse dragging
   var isDragging = false;
@@ -40,6 +42,12 @@ $(document).ready(function(){
   var secondPosition;
 
   var currentTime = 0;
+
+  var backgroundMap = new Image();
+  var canvasSize = [];
+
+  // TODO this part should not be hard coded
+  var veg_type_num = [];
 
 
   $.get('/fire_data', function(data){
@@ -62,6 +70,9 @@ $(document).ready(function(){
 
     canvasWidth = cellWidth*dataX;
     canvasHeight = cellHeight*dataY;
+
+    canvasSize.push(canvasWidth);
+    canvasSize.push(canvasHeight);
    
     $('.mapCanvas').attr('width',canvasWidth.toString()+'px');
     $('.mapCanvas').attr('height',canvasHeight.toString()+'px');
@@ -75,16 +86,36 @@ $(document).ready(function(){
     // colorScale = chroma.scale(['green','red']).colors(scaleSize);
     colorScale = ['#00FF00','#FF0000'];
 
-    initCanvas();
-
     // init map
     var xllcorner = parseFloat(inputJson['let_top_lat']);
     var xurcorner = parseFloat(inputJson['right_bottom_lat']);
     var yllcorner = parseFloat(inputJson['right_bottom_long']);
     var yurcorner = parseFloat(inputJson['left_top_long']);
-    overlayCanvasonGoogleMap(xllcorner,xurcorner,yllcorner,yurcorner);
+    center = [(xllcorner+xurcorner)/2,(yllcorner+yurcorner)/2];
 
+    center = [39.5401289,-119.81453920000001];
+    // set up background map img
+    // var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + center[0].toString() + "," +
+    //                     center[1].toString() + "&zoom=14&size="+canvasSize[0].toString()+"x"+canvasSize[1].toString()+"&markers=color:blue|label:U|" +
+    //                     center[0].toString() + ',' + center[1].toString();
+
+    var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=-30.397,150.644&zoom=8&size="+canvasSize[0].toString()+"x"+canvasSize[1].toString();
+    var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=-30.397,150.644&zoom=8&size=906x642";
+    backgroundMap.src = google_tile;
+
+    //setupBackgroundMap();
+    initCanvas();
     setInterval(updateCanvas, 10);
+
+    // backgroundMap.onload = function(){
+    //   canvas2DContext.globalAlpha = 1.0;
+    //   canvas2DContext.drawImage(backgroundMap, 0, 0);
+    // }
+    
+
+    //overlayCanvasonGoogleMap(xllcorner,xurcorner,yllcorner,yurcorner);
+
+    //setInterval(updateCanvas, 10);
     //updateCanvas(926);
 
 
@@ -104,6 +135,15 @@ $(document).ready(function(){
       return outputarr;
   }
 
+  function setupBackgroundMap()
+  {
+    backgroundMap.onload = function(){
+      canvas2DContext.globalAlpha = 1.0;
+      canvas2DContext.drawImage(backgroundMap, 0, 0);
+    }
+    
+  }
+
   // this is from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
   // get the mouse position, based on px
   function getMousePos(canvas, evt)
@@ -119,6 +159,9 @@ $(document).ready(function(){
   // this function is used to update canvas (fire cell) with the current fire code
   function updateCanvas()
   {
+
+      canvas2DContext.globalAlpha = 0.5;
+
       for(var m=0 ; m<dataY ; m++)
       {
         for(var i=0 ; i<dataX ; i++)
@@ -136,16 +179,19 @@ $(document).ready(function(){
       //canvas2DContext.stroke();
       currentTime = currentTime + 1;
 
+      setupBackgroundMap();
+
       // update google map overlay
       // need to set up some intervals or the refresh rate to fast and the google map cannot follow up
-      if(currentTime%100 == 0)
-      {
-        updateMapOverlay();
-      }
+      // if(currentTime%100 == 0)
+      // {
+      //   updateMapOverlay();
+      // }
       //updateMapOverlay();
   }
   function initCanvas()
   {
+      canvas2DContext.globalAlpha = 0.5;
       for(var m=0 ; m<dataY ; m++)
       {
         for(var i=0 ; i<dataX ; i++)
@@ -158,6 +204,7 @@ $(document).ready(function(){
         }
       }
       //canvas2DContext.stroke();
+      setupBackgroundMap();
   }
 
   Array.prototype.max = function() {
