@@ -69,6 +69,8 @@ def get_fire_data_by_timestep(fire_out_file,start_time,end_time):
     '''
     start_time and end_time should be int
     '''
+    if start_time > end_time:
+        return json.dumps({'error':'start is bigger then end time'})
     fp = open(fire_out_file)
     # get let top lat, and remove \n in the end of string
     let_top_lat = fp.readline().strip().split(':')[1]
