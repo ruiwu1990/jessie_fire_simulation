@@ -24,33 +24,18 @@
 
 <div class="container">
     <div class="row">
-        <h4>Display fire simulation with 2D map</h4>
-        <div class='row'>
-            <canvas class='mapCanvas' id="myCanvas" style="border:1px solid #c3c3c3;" >
-                Your browser does not support the HTML5 canvas tag.
-            </canvas>
-        </div>
 
-        <div class='row'>
-            <div id='buttonDivID'>
-                <button id="startButtonID" class="btn btn-default" >
-                    Start/Continue
-                </button>
-                <button id="stopButtonID" class="btn btn-default" >
-                    Stop
-                </button>
-                <button id="getOnFireButtonID" class="btn btn-default" >
-                    Get On Fire Info
-                </button>
-            </div>
-
-            <div id='googleMapDiv' style="width:800px;height:600px;">
-            </div>
-
-            
-        </div>
+      <div id='uploadfileDiv'>
+        <h4 style="color:red">Please upload input files for fire simulation models</h4>
+        <form action="/upload_process" method="post" enctype="multipart/form-data">
+          <input type="file" name="file1"><br />
+          <input type="file" name="file2"><br />
+          <input type="submit" value="Upload">
+        </form>
+      </div>
 
     </div>
+
 </div>
 
 </body>

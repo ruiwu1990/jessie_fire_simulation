@@ -49,16 +49,21 @@ $(document).ready(function(){
   // TODO this part should not be hard coded
   var veg_type_num = [];
 
+  var setIntervalID;
 
-  $.get('/fire_data', function(data){
+  var vegColorScale = [];
+  var veg2DGrid = [];
+  var vegJson;
+
+
+  $.get('/api/fire_data', function(data){
     inputJson = JSON.parse(data);
 
     // grab col and row num
     dataX = inputJson['num_cols'];
     dataY = inputJson['num_rows'];
-    // convert the json file into 1d, this is because my previous functions are
-    // designed for 1d only
-    fireOrigin = obtainJsoninto1D(inputJson);
+    
+    fireOrigin = inputJson["fire_data"].slice();
 
     var maxTime = inputJson['max_val'];
     var notsetfireVal = inputJson['notsetfire_Val'];
@@ -105,34 +110,59 @@ $(document).ready(function(){
 
     //setupBackgroundMap();
     initCanvas();
-    setInterval(updateCanvas, 10);
+    $('#startButtonID').on('click',function(){
+      setIntervalID = setInterval(updateCanvas, 10);
 
-    // backgroundMap.onload = function(){
-    //   canvas2DContext.globalAlpha = 1.0;
-    //   canvas2DContext.drawImage(backgroundMap, 0, 0);
-    // }
+      $('#stopButtonID').on('click',function(){
+        clearInterval(setIntervalID);
+      });
+
+      $('#getOnFireButtonID').on('click',function(){
+        clearInterval(setIntervalID);
+        var onFireInfo = getOnFireInfo();
+        $.ajax({
+              type : "POST",
+              url : "/api/update_fire_info",
+              data: JSON.stringify(
+                {
+                  fire_info_arr: onFireInfo,
+                  num_cols: dataX,
+                  num_rows: dataY
+                }, null, '\t'),
+              contentType: 'application/json',
+              success: function(result) {
+
+              }
+          });
+
+      });
+    });
     
-
-    //overlayCanvasonGoogleMap(xllcorner,xurcorner,yllcorner,yurcorner);
-
-    //setInterval(updateCanvas, 10);
-    //updateCanvas(926);
-
 
 
   });
 
-  function obtainJsoninto1D(inputJson)
+  function getOnFireInfo()
   {
-      var outputarr = [];
+      var temparr = [];
+      var outarr=[];
       for(var m=0 ; m<dataY ; m++)
       {
+        temparr = [];
         for(var i=0 ; i<dataX ; i++)
         {
-          outputarr.push(inputJson["fire_data"][m][i]);
+          if(currentTime >= parseInt(fireCurrent[m][i]))
+          {
+            temparr.push('1');
+          }
+          else
+          {
+            temparr.push('0');
+          }
         }
+        outarr.push(temparr);
       }
-      return outputarr;
+      return outarr;
   }
 
   function setupBackgroundMap()
@@ -166,7 +196,8 @@ $(document).ready(function(){
       {
         for(var i=0 ; i<dataX ; i++)
         {
-          if(currentTime == fireCurrent[i+m*dataX])
+          // if(currentTime == fireCurrent[i+m*dataX])
+          if(currentTime == parseInt(fireCurrent[m][i]))
           {
             canvas2DContext.fillStyle = colorScale[1];
             //                          start x,     y,            width,    height
@@ -180,31 +211,37 @@ $(document).ready(function(){
       currentTime = currentTime + 1;
 
       setupBackgroundMap();
-
-      // update google map overlay
-      // need to set up some intervals or the refresh rate to fast and the google map cannot follow up
-      // if(currentTime%100 == 0)
-      // {
-      //   updateMapOverlay();
-      // }
-      //updateMapOverlay();
   }
   function initCanvas()
   {
-      canvas2DContext.globalAlpha = 0.5;
-      for(var m=0 ; m<dataY ; m++)
-      {
-        for(var i=0 ; i<dataX ; i++)
+      // for current version, onfire 2D grid cell num should be >= then veg grid cell num 
+      $.get('/api/veg_data',function(data){
+        vegJson = JSON.parse(data);
+        var vegMetaData = vegJson['meta_data'];
+        var vegCode = vegJson['veg_code'];
+        veg2DGrid = vegJson['veg_grid_data'];
+        vegColorScale = chroma.scale(['white','green']).colors(vegCode);
+        // change rock value into black
+        vegColorScale[vegCode.indexOf(99)] = '#000000';
+
+        canvas2DContext.globalAlpha = 0.5;
+        for(var m=0 ; m<dataY ; m++)
         {
-          canvas2DContext.fillStyle = colorScale[0];
-          //                          start x,     y,            width,    height
-          canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
-          // draw lines to separate cell
-          //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
+          for(var i=0 ; i<dataX ; i++)
+          {
+            // canvas2DContext.fillStyle = colorScale[0];
+            canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(veg2DGrid[m][i])];
+            //                          start x,     y,            width,    height
+            canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
+            // draw lines to separate cell
+            //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
+          }
         }
-      }
-      //canvas2DContext.stroke();
-      setupBackgroundMap();
+        //canvas2DContext.stroke();
+        setupBackgroundMap();
+
+      });
+      
   }
 
   Array.prototype.max = function() {
