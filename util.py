@@ -204,6 +204,7 @@ def veg_out_file_processing(veg_out_file,num_rows,num_cols):
     ncols = int(veg_grid_data[0][1])
     if num_rows<=nrows or num_cols<=ncols:
         raise Exception('try to map bigger veg map into a smaller')
+    '''
     # here is the method to map smaller veg map into bigger map
     # total_rows = numrow * vegrow, total_rows*m/vegrow = total_rows*n/numrow
     # m is the current veg row num, n is the bigger map num
@@ -216,10 +217,12 @@ def veg_out_file_processing(veg_out_file,num_rows,num_cols):
         for m in range(num_cols):
             temp_col_index = int(math.floor((ncols*n)/num_cols))
             temp_arr.append(veg_grid_data[temp_row_index][temp_col_index])
-            print veg_grid_data[temp_row_index][temp_col_index]
-        # print temp_arr
+            # print veg_grid_data[temp_row_index][temp_col_index]
+        #print temp_arr
         final_veg_grid_data.append(temp_arr)
-    json_dict = {'meta_data':meta_data,'veg_code':veg_code,'veg_grid_data':final_veg_grid_data}
+    '''
+    #json_dict = {'meta_data':meta_data,'veg_code':veg_code,'grid_data':final_veg_grid_data}
+    json_dict = {'meta_data':meta_data,'veg_code':veg_code,'grid_data':veg_grid_data}
     return json.dumps(json_dict)
 
 

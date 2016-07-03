@@ -51,9 +51,12 @@ $(document).ready(function(){
 
   var setIntervalID;
 
+  // these for veg type modification
   var vegColorScale = [];
   var veg2DGrid = [];
   var vegJson;
+  var vegCellWidth;
+  var vegCellHight;
 
 
   $.get('/api/fire_data', function(data){
@@ -168,7 +171,7 @@ $(document).ready(function(){
   function setupBackgroundMap()
   {
     backgroundMap.onload = function(){
-      canvas2DContext.globalAlpha = 1.0;
+      canvas2DContext.globalAlpha = 0.5;
       canvas2DContext.drawImage(backgroundMap, 0, 0);
     }
     
@@ -190,7 +193,7 @@ $(document).ready(function(){
   function updateCanvas()
   {
 
-      canvas2DContext.globalAlpha = 0.5;
+      canvas2DContext.globalAlpha = 1.0;
 
       for(var m=0 ; m<dataY ; m++)
       {
@@ -219,20 +222,25 @@ $(document).ready(function(){
         vegJson = JSON.parse(data);
         var vegMetaData = vegJson['meta_data'];
         var vegCode = vegJson['veg_code'];
-        veg2DGrid = vegJson['veg_grid_data'];
-        vegColorScale = chroma.scale(['white','green']).colors(vegCode);
+        veg2DGrid = vegJson['grid_data'];
+        vegColorScale = chroma.scale(['white','green']).colors(vegCode.length);
         // change rock value into black
         vegColorScale[vegCode.indexOf(99)] = '#000000';
 
+        var vegColNum = parseInt(vegMetaData[0][1]);
+        var vegRowNum = parseInt(vegMetaData[1][1]);
+        vegCellWidth = canvasWidth/vegColNum;
+        vegCellHight = canvasHeight/vegRowNum;
+
         canvas2DContext.globalAlpha = 0.5;
-        for(var m=0 ; m<dataY ; m++)
+        for(var m=0 ; m<vegRowNum ; m++)
         {
-          for(var i=0 ; i<dataX ; i++)
+          for(var i=0 ; i<vegColNum ; i++)
           {
             // canvas2DContext.fillStyle = colorScale[0];
-            canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(veg2DGrid[m][i])];
+            canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(veg2DGrid[m][i]))];
             //                          start x,     y,            width,    height
-            canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
+            canvas2DContext.fillRect(vegCellWidth*i,vegCellHight*m,vegCellWidth,vegCellHight);
             // draw lines to separate cell
             //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
           }
