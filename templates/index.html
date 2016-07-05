@@ -22,10 +22,54 @@
 </head>
 <body>
 
+<style>
+    #vegetation-type-selector {
+      margin: 15px;
+      border: 2px solid red;
+      border-radius: 5px;
+    }
+    label {
+      display: block;
+    }
+    a.remove-veg-update:hover {
+      cursor: pointer;
+    }
+    span.legend {
+      display: inline-block;
+    }
+</style>
+
 <div class="container">
     <div class="row">
-        <h4>Display fire simulation with 2D map</h4>
+        
         <div class='row'>
+            <h4>Please select a vegetation type</h4>
+            <div id="vegetation-type-selector" class="btn-group" data-toggle="buttons">
+                {% for item in veg_option %}
+                    {% if loop.index0 == 0 %}
+                    <label class="btn btn-custom active" >
+                    {% else %}  
+                    <label class="btn btn-custom" >
+                    {% endif %}  
+                        <input id={{loop.index0}} type="radio" value={{item}}
+                               name="vegcode-select" autocomplete="off">
+                        <!-- <span class="legend" id={{loop.index0}}>&#9608;</span>    -->
+                        {{item}}
+                    </label>
+                {% endfor %}
+            </div>
+            <div>
+                <button class="btn btn-default" id="save-veg-update"> <!--style="width: 40%">-->
+                  Confirm Vegetation Modification
+                </button>
+                <button class="btn btn-default" id="post-veg-update"> <!--style="width: 40%">-->
+                  Rerun model with updated veg info
+              </button>
+            </div>
+        </div>
+
+        <div class='row'>
+            <h4>Display fire simulation with 2D map</h4>
             <canvas class='mapCanvas' id="myCanvas" style="border:1px solid #c3c3c3;" >
                 Your browser does not support the HTML5 canvas tag.
             </canvas>

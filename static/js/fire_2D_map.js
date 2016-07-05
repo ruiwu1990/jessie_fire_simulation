@@ -40,6 +40,14 @@ $(document).ready(function(){
   var isMousePressing = false;
   var firstPosition;
   var secondPosition;
+  var clickTime;
+  // record the chosen area rec top left
+  var firstPoint = {x:-1,y:-1};
+  // record the chosen area rec bot right
+  var secondPoint = {x:-1,y:-1};
+  // record mouse click time
+  // this var record all the chosen HRU num
+  var chosenHRU = [];
 
   var currentTime = 0;
 
@@ -56,7 +64,12 @@ $(document).ready(function(){
   var veg2DGrid = [];
   var vegJson;
   var vegCellWidth;
-  var vegCellHight;
+  var vegCellHeight;
+  var vegColNum;
+  var vegRowNum;
+  var chosenAreaInfo=[];
+  var vegCode;
+  var vegMetaData;
 
 
   $.get('/api/fire_data', function(data){
@@ -167,13 +180,13 @@ $(document).ready(function(){
       }
       return outarr;
   }
-
+  // TODO, cannot use url to get google map image based on the two corners
   function setupBackgroundMap()
   {
-    backgroundMap.onload = function(){
-      canvas2DContext.globalAlpha = 0.5;
-      canvas2DContext.drawImage(backgroundMap, 0, 0);
-    }
+    // backgroundMap.onload = function(){
+    //   canvas2DContext.globalAlpha = 0.5;
+    //   canvas2DContext.drawImage(backgroundMap, 0, 0);
+    // }
     
   }
 
@@ -220,36 +233,252 @@ $(document).ready(function(){
       // for current version, onfire 2D grid cell num should be >= then veg grid cell num 
       $.get('/api/veg_data',function(data){
         vegJson = JSON.parse(data);
-        var vegMetaData = vegJson['meta_data'];
-        var vegCode = vegJson['veg_code'];
+        vegMetaData = vegJson['meta_data'];
+        vegCode = vegJson['veg_code'];
         veg2DGrid = vegJson['grid_data'];
         vegColorScale = chroma.scale(['white','green']).colors(vegCode.length);
         // change rock value into black
         vegColorScale[vegCode.indexOf(99)] = '#000000';
 
-        var vegColNum = parseInt(vegMetaData[0][1]);
-        var vegRowNum = parseInt(vegMetaData[1][1]);
+        vegColNum = parseInt(vegMetaData[0][1]);
+        vegRowNum = parseInt(vegMetaData[1][1]);
         vegCellWidth = canvasWidth/vegColNum;
-        vegCellHight = canvasHeight/vegRowNum;
+        vegCellHeight = canvasHeight/vegRowNum;
 
-        canvas2DContext.globalAlpha = 0.5;
-        for(var m=0 ; m<vegRowNum ; m++)
-        {
-          for(var i=0 ; i<vegColNum ; i++)
-          {
-            // canvas2DContext.fillStyle = colorScale[0];
-            canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(veg2DGrid[m][i]))];
-            //                          start x,     y,            width,    height
-            canvas2DContext.fillRect(vegCellWidth*i,vegCellHight*m,vegCellWidth,vegCellHight);
-            // draw lines to separate cell
-            //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
-          }
-        }
-        //canvas2DContext.stroke();
-        setupBackgroundMap();
+        updateVeg();
 
       });
       
+  }
+
+  function updateVeg()
+  {
+
+    canvas2DContext.globalAlpha = 0.5;
+    for(var m=0 ; m<vegRowNum ; m++)
+    {
+      for(var i=0 ; i<vegColNum ; i++)
+      {
+        // canvas2DContext.fillStyle = colorScale[0];
+        canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(veg2DGrid[m][i]))];
+        //                          start x,     y,            width,    height
+        canvas2DContext.fillRect(vegCellWidth*i,vegCellHeight*m,vegCellWidth,vegCellHeight);
+        // draw lines to separate cell
+        //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
+      }
+    }
+    //canvas2DContext.stroke();
+    setupBackgroundMap();
+  }
+
+  $("#myCanvas")
+    .mousedown(function(evt){
+      isMousePressing = true;
+    })
+    .mousemove(function(evt){
+      // record the first mouse position
+      if(isDragging==false && isMousePressing==true)
+      {
+        // start point
+        clickTime = 1;
+        firstPosition = getMousePos(canvasHandle, evt);
+        isDragging = true;
+        changeCanvasCellColor(firstPosition,"#FFFF00");
+      }
+      else if(isDragging == true && isMousePressing==true)
+      {
+        clickTime = 2;
+        secondPosition = getMousePos(canvasHandle, evt);
+        changeCanvasCellColor(secondPosition,"#FFFF00");
+      }
+    })
+    .mouseup(function(evt){
+      isMousePressing = false;
+      // choose single cell
+      if(isDragging==false)
+      {
+        clickTime = 1;
+        firstPosition = getMousePos(canvasHandle, evt);
+        changeCanvasCellColor(firstPosition,"#FF00FF");
+        secondPosition = firstPosition;
+        clickTime = 2;
+        changeCanvasCellColor(secondPosition,"#FF00FF");
+      }
+      // choose an area
+      else if(isDragging==true)
+      {
+        isDragging = false;
+      }
+       // push the final chosen area into chosenAreaInfo
+      // get the current chosen color number
+      var colorOptNum = parseInt($('#vegetation-type-selector label.active input').val());
+            //parseInt($('input[name="vegcode-select"]:checked').val());
+      chosenAreaInfo.push({colorNum:colorOptNum,chosenArea:chosenHRU});
+      chosenHRU=[];
+    });
+
+  $("#save-veg-update").click(function(){
+
+    $.each(chosenAreaInfo, function(index1, value1) {
+      //var tempColor = value1.colorNum;
+      $.each(value1.chosenArea,function(index2,value2){
+        // convert 1D into 2D, this is coz of recordChosenAreaInfo using 1D but veg2DGrid is 2D
+        var tempRow = Math.floor(value2/vegColNum);
+        var tempCol = value2%vegColNum;
+        veg2DGrid[tempRow][tempCol] = value1.colorNum;
+
+        // canvas2DContext.fillStyle = colorScale[0];
+        canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(value1.colorNum))];
+        //                          start x,     y,            width,    height
+        canvas2DContext.fillRect(vegCellWidth*tempCol,vegCellHeight*tempRow,vegCellWidth,vegCellHeight);
+
+      });
+    });
+
+  $("#post-veg-update").click(function(){
+    // post the update info back to server
+    $.ajax({
+        type : "POST",
+        url : "/api/update_veg_file",
+        data: JSON.stringify(
+          {
+            veg_meta: vegMetaData,
+            veg_2D_grid: veg2DGrid
+          }, null, '\t'),
+        contentType: 'application/json',
+        success: function(result) {
+          
+        }
+    });
+
+  });
+
+
+    // TODO send changes back to server
+
+    // update map overlay
+    // updateMapOverlay();
+  });
+
+  // this is from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
+  // get the mouse position, based on px
+  function getMousePos(canvas, evt)
+  {
+    var rect = canvas.getBoundingClientRect();
+    return {
+      x: evt.clientX - rect.left,
+      y: evt.clientY - rect.top
+    };
+  }
+
+  function changeCanvasCellColor(mousePosition,color)
+  {
+    var startX = Math.floor(mousePosition.x/vegCellWidth);
+    var startY = Math.floor(mousePosition.y/vegCellHeight);
+    canvas2DContext.fillStyle = color;
+    canvas2DContext.fillRect(startX*vegCellWidth, startY*vegCellHeight, vegCellWidth, vegCellHeight);
+
+    if(clickTime == 1)
+    {
+      firstPoint.x = startX;
+      firstPoint.y = startY;
+    }
+    else if(clickTime == 2)
+    {
+      secondPoint.x = startX;
+      secondPoint.y = startY;
+
+      showChosenRecArea(firstPoint,secondPoint);
+
+    }
+
+  }
+
+  // this function requires top left and bot right points for the chosen area
+  function showChosenRecArea(input1,input2)
+  {
+    var p1 = {x:input1.x,y:input1.y};
+    var p2 = {x:input2.x,y:input2.y};
+    var temp;
+    canvas2DContext.fillStyle = "#FFFF00";
+    // not the same point
+    if(p2.x!=p1.x&&p2.y!=p1.y)
+    {
+      if(p2.x < p1.x)
+      {
+        temp = p2.x;
+        p2.x = p1.x;
+        p1.x = temp;
+      }
+      if(p2.y < p1.y)
+      {
+        temp = p2.y;
+        p2.y = p1.y;
+        p1.y = temp;
+      }
+      // Here +1 coz need to count the bottom line too
+      canvas2DContext.fillRect(p1.x*vegCellWidth, p1.y*vegCellHeight, vegCellWidth*(p2.x-p1.x+1), vegCellHeight*(p2.y-p1.y+1));
+    }
+    // two points in the same column
+    else if(p2.x==p1.x&&p2.y!=p1.y)
+    {
+      if(p2.y < p1.y)
+      {
+        temp = p2.y;
+        p2.y = p1.y;
+        p1.y = temp;
+      }
+      // Here +1 coz need to count the bottom line too
+      canvas2DContext.fillRect(p1.x*vegCellWidth, p1.y*vegCellHeight, vegCellWidth, vegCellHeight*(p2.y-p1.y+1));
+    }
+    // two points in the same row
+    else if(p2.x!=p1.x&&p2.y==p1.y)
+    {
+      if(p2.x < p1.x)
+      {
+        temp = p2.x;
+        p2.x = p1.x;
+        p1.x = temp;
+      }
+      // Here +1 coz need to count the bottom line too
+      canvas2DContext.fillRect(p1.x*vegCellWidth, p1.y*vegCellHeight, vegCellWidth*(p2.x-p1.x+1), vegCellHeight);
+    }
+    // choose the single cell
+    else if(p2.x==p1.x&&p2.y==p1.y)
+    {
+      canvas2DContext.fillRect(p1.x*vegCellWidth, p1.y*vegCellHeight, vegCellWidth, vegCellHeight);
+    }
+    // push chosen HRU cell num
+    recordChosenAreaInfo(p1,p2);
+
+  }
+
+
+  // this function is used to add the chosen cell number into chosenHRU
+  // for this function p1.x and p1.y should be =< p2.x and p2.y
+  // after this function chosenHRU may have some duplicated elements
+  function recordChosenAreaInfo(p1,p2)
+  {
+    // get the current chosen color number
+    // var colorOptNum =
+    //       parseInt($('input[name="vegcode-select"]:checked').val());
+
+    // single point
+    if(p1.x==p2.x && p1.y==p2.y)
+    {
+      chosenHRU.push(p1.x+p2.y*vegColNum);
+    }
+    else
+    {
+      for(var m=p1.y; m<=p2.y; m++)
+      {
+        for(var i=p1.x; i<=p2.x; i++)
+        {
+          chosenHRU.push(i+m*vegColNum);
+        }
+      }
+    }
+  
   }
 
   Array.prototype.max = function() {

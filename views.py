@@ -30,9 +30,37 @@ def obtain_fire_frame_data(start='',end=''):
     output_file = app_path + '/static/data/output_test.csv'
     return util.get_fire_data_by_timestep(output_file,int(start),int(end))
 
+@app.route('/api/update_veg_file', methods=['POST'])
+def update_veg_file_post():
+    '''
+    This function update the veg file and rerun the model
+    with the updated info
+    '''
+    veg_meta = request.json['veg_meta']
+    veg_2D_grid = request.json['veg_2D_grid']
+
+    # TODO hard coded file name and location here
+    output_file = app_path + '/static/data/test_veg_output.csv'
+
+    util.update_veg_file(output_file,veg_meta,veg_2D_grid)
+
+    # TODO add the model run part
+    return 'success'
+
+@app.route('/api/get_update_veg')
+def get_update_veg():
+    # hard coded for now, to get the choose the input file
+    filename = 'test_veg_output.csv'
+    folder = app_path + '/static/data/'
+    return send_from_directory(folder,filename)
+
+
 @app.route('/')
 def index_page():
-    return render_template("index.html")
+    # hard coded for now, to get the choose the input file
+    output_file = app_path + '/static/data/veg_data.csv'
+    a,veg_option,c = util.get_veg_types(output_file)
+    return render_template("index.html",veg_option=veg_option)
 
 # @app.route('/api/onfire_cell_json/<timestep>')
 # def api_onfire_json():

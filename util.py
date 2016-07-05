@@ -158,6 +158,19 @@ def update_onfire_file(fire_file, fire_arr):
     fp.close()
     return 'success'
 
+def update_veg_file(veg_file,meta_data,veg_2D_grid):
+    fp = open(veg_file, 'wb')
+    # write meta data
+    for item in meta_data:
+        item.append('\n')
+        fp.write(' '.join(item))
+
+    for item in veg_2D_grid:
+        line = [str(i) for i in item]
+        line.append('\n')
+        fp.write(' '.join(line))
+
+    fp.close()
 
 def get_veg_types(veg_out_file):
     '''
