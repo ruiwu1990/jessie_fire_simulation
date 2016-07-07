@@ -1,0 +1,49 @@
+---------- Running Parallel Simulation ----------
+Propagation Constructor
+Initializing Simulation to Test Setting
+/home/jessie/Documents/simulator/data/default.fmd
+/home/jessie/Documents/simulator/data/kyle.fms
+Propagation Init
+Updating Spread Data . . .
+Spread Data Calculated
+1.2527
+2.92993
+3.12942
+0.989234
+BD Init
+
+left_top_lat 61.8819
+left_top_lat: 61.8819
+
+left_top_long 40.172
+
+left_top_long: 40.172
+
+right_bottom_lat 62.7417
+
+right_bottom_lat: 62.7417
+
+right_bottom_long 40.1111
+
+right_bottom_long: 40.1111
+
+numrows 642
+
+numrows: 642
+
+numcols 906
+
+numcols: 906
+
+lmaxval 1862
+
+lmaxval: 1862
+
+notsetfire 32767
+
+notsetfire: 32767
+25215
+Propgation Copy To Device
+BD Copy From Device
+Processing Simulation took 1.86453 seconds
+Simulation Complete

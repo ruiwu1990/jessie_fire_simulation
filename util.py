@@ -1,5 +1,8 @@
 import json
 import math
+import subprocess
+import os
+import sys
 
 # this function process the input csv file and generate json file
 def fire_out_file_processing(fire_out_file):
@@ -238,4 +241,32 @@ def veg_out_file_processing(veg_out_file,num_rows,num_cols):
     json_dict = {'meta_data':meta_data,'veg_code':veg_code,'grid_data':veg_grid_data}
     return json.dumps(json_dict)
 
+def execute(directory, command, log_path=None, err_log_path=None):
+    '''
+    This functino is used to execute c++
+    This function is from Moinul
+    https://github.com/VirtualWatershed/vw-py/blob/master/vwpy/prms_runner.py
+    '''
+    if not log_path:
+        print 'NO log file provided!'
+        #log_path = '/dev/null'
+    if not os.path.exists(os.path.dirname(log_path)):
+        os.makedirs(os.path.dirname(log_path))
 
+    with open(log_path, 'wb') as process_out, open(log_path, 'rb', 1) as reader, open(err_log_path, 'wb') as err_out:
+        process = subprocess.Popen(
+            command, stdout=process_out, stderr=err_out, cwd=directory)
+
+    return True
+
+def line_prepender(filename, line):
+    '''
+    This function is from http://stackoverflow.com/questions/5914627/prepend-line-to-beginning-of-a-file
+    I used it to prepend some metadata in the file
+    '''
+    with open(filename, 'r+') as f:
+        content = f.read()
+        f.seek(0, 0)
+        f.write(line.rstrip('\r\n') + '\n' + content)
+
+# /cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/build/simulator

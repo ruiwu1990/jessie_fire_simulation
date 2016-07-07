@@ -1,6 +1,7 @@
 from flask import Flask, render_template, send_from_directory, request
 import util
 import os
+import shutil
 app = Flask(__name__)
 
 app_path = os.path.dirname(os.path.realpath('__file__'))
@@ -15,7 +16,13 @@ def obtain_veg_data():
 @app.route('/api/fire_data')
 def obtain_fire_data():
     # hard coded for now, to get the choose the input file
-    output_file = app_path + '/static/data/output_test.csv'
+    #output_file = app_path + '/static/data/output_test.csv'
+    output_file = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/out/final_tests.csv'
+
+    # replace veg with the original one
+    temp_data_folder = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/data/'
+    shutil.move(temp_data_folder+'origin_fixed.fuel',temp_data_folder+'fixed.fuel')
+    shutil.copy(temp_data_folder+'fixed.fuel',temp_data_folder+'origin_fixed.fuel')
     return util.fire_out_file_processing(output_file)
 
 @app.route('/api/fire_data/metadata')
@@ -30,22 +37,41 @@ def obtain_fire_frame_data(start='',end=''):
     output_file = app_path + '/static/data/output_test.csv'
     return util.get_fire_data_by_timestep(output_file,int(start),int(end))
 
-@app.route('/api/update_veg_file', methods=['POST'])
+@app.route('/api/update_veg_file', methods=['POST','GET'])
 def update_veg_file_post():
     '''
     This function update the veg file and rerun the model
     with the updated info
     '''
-    veg_meta = request.json['veg_meta']
-    veg_2D_grid = request.json['veg_2D_grid']
+    if request.method == 'POST':
+        veg_meta = request.json['veg_meta']
+        veg_2D_grid = request.json['veg_2D_grid']
 
-    # TODO hard coded file name and location here
-    output_file = app_path + '/static/data/test_veg_output.csv'
+        # TODO hard coded file name and location here
+        # output_file = app_path + '/static/data/test_veg_output.csv'
+        # this will be replaced by argv[]
+        output_file = "/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/data/fixed.fuel"
 
-    util.update_veg_file(output_file,veg_meta,veg_2D_grid)
+        util.update_veg_file(output_file,veg_meta,veg_2D_grid)
 
-    # TODO add the model run part
-    return 'success'
+        app_root = os.path.dirname(os.path.abspath(__file__))
+        # this will be replaced by argv[]
+        temp_dir = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/build/'
+        log_path = app_root + '/log.txt'
+        err_log_path = app_root + '/err_log.txt'
+
+        command = ['./simulator',temp_dir+'../data/fixed.fuel',temp_dir+'../data/fire_info.csv',temp_dir+'../out/final_tests.csv']
+        util.execute(temp_dir, command, log_path, err_log_path)
+        
+        return 'success'
+
+    elif request.method == 'GET':
+        # # hard coded for now, to get the choose the input file
+        output_file = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/out/final_tests.csv'
+
+        return util.fire_out_file_processing(output_file)
+
+
 
 @app.route('/api/get_update_veg')
 def get_update_veg():

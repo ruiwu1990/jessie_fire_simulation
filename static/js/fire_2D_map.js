@@ -73,6 +73,7 @@ $(document).ready(function(){
 
 
   $.get('/api/fire_data', function(data){
+
     inputJson = JSON.parse(data);
 
     // grab col and row num
@@ -107,25 +108,8 @@ $(document).ready(function(){
     // colorScale = chroma.scale(['green','red']).colors(scaleSize);
     colorScale = ['#00FF00','#FF0000'];
 
-    // init map
-    var xllcorner = parseFloat(inputJson['let_top_lat']);
-    var xurcorner = parseFloat(inputJson['right_bottom_lat']);
-    var yllcorner = parseFloat(inputJson['right_bottom_long']);
-    var yurcorner = parseFloat(inputJson['left_top_long']);
-    center = [(xllcorner+xurcorner)/2,(yllcorner+yurcorner)/2];
-
-    center = [39.5401289,-119.81453920000001];
-    // set up background map img
-    // var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=" + center[0].toString() + "," +
-    //                     center[1].toString() + "&zoom=14&size="+canvasSize[0].toString()+"x"+canvasSize[1].toString()+"&markers=color:blue|label:U|" +
-    //                     center[0].toString() + ',' + center[1].toString();
-
-    var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=-30.397,150.644&zoom=8&size="+canvasSize[0].toString()+"x"+canvasSize[1].toString();
-    var google_tile = "http://maps.google.com/maps/api/staticmap?sensor=false&center=-30.397,150.644&zoom=8&size=906x642";
-    backgroundMap.src = google_tile;
-
-    //setupBackgroundMap();
     initCanvas();
+
     $('#startButtonID').on('click',function(){
       setIntervalID = setInterval(updateCanvas, 10);
 
@@ -157,6 +141,8 @@ $(document).ready(function(){
 
 
   });
+
+
 
   function getOnFireInfo()
   {
@@ -347,7 +333,13 @@ $(document).ready(function(){
           }, null, '\t'),
         contentType: 'application/json',
         success: function(result) {
-          
+
+          $.get('/api/update_veg_file', function(data){
+              inputJson = JSON.parse(data);
+              fireCurrent = inputJson["fire_data"].slice();
+              $('#startButtonID').trigger("click");
+          });
+
         }
     });
 
@@ -359,6 +351,7 @@ $(document).ready(function(){
     // update map overlay
     // updateMapOverlay();
   });
+
 
   // this is from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
   // get the mouse position, based on px
