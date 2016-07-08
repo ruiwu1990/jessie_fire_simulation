@@ -256,17 +256,19 @@ def execute(directory, command, log_path=None, err_log_path=None):
     with open(log_path, 'wb') as process_out, open(log_path, 'rb', 1) as reader, open(err_log_path, 'wb') as err_out:
         process = subprocess.Popen(
             command, stdout=process_out, stderr=err_out, cwd=directory)
-
+        
+    # this waits the process finishes
+    process.wait()
     return True
 
-def line_prepender(filename, line):
-    '''
-    This function is from http://stackoverflow.com/questions/5914627/prepend-line-to-beginning-of-a-file
-    I used it to prepend some metadata in the file
-    '''
-    with open(filename, 'r+') as f:
-        content = f.read()
-        f.seek(0, 0)
-        f.write(line.rstrip('\r\n') + '\n' + content)
+# def line_prepender(filename, line):
+#     '''
+#     This function is from http://stackoverflow.com/questions/5914627/prepend-line-to-beginning-of-a-file
+#     I used it to prepend some metadata in the file
+#     '''
+#     with open(filename, 'r+') as f:
+#         content = f.read()
+#         f.seek(0, 0)
+#         f.write(line.rstrip('\r\n') + '\n' + content)
 
 # /cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/build/simulator

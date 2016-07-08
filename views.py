@@ -2,6 +2,7 @@ from flask import Flask, render_template, send_from_directory, request
 import util
 import os
 import shutil
+import time
 app = Flask(__name__)
 
 app_path = os.path.dirname(os.path.realpath('__file__'))
@@ -15,14 +16,27 @@ def obtain_veg_data():
 
 @app.route('/api/fire_data')
 def obtain_fire_data():
-    # hard coded for now, to get the choose the input file
-    #output_file = app_path + '/static/data/output_test.csv'
-    output_file = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/out/final_tests.csv'
-
     # replace veg with the original one
     temp_data_folder = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/data/'
     shutil.move(temp_data_folder+'origin_fixed.fuel',temp_data_folder+'fixed.fuel')
     shutil.copy(temp_data_folder+'fixed.fuel',temp_data_folder+'origin_fixed.fuel')
+
+    # # This part should be improved, using another page to load file and run model
+    # app_root = os.path.dirname(os.path.abspath(__file__))
+    # # this will be replaced by argv[]
+    # temp_dir = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/build/'
+    # log_path = app_root + '/log.txt'
+    # err_log_path = app_root + '/err_log.txt'
+
+    # command = ['./simulator',temp_dir+'../data/fixed.fuel',temp_dir+'../data/fire_info.csv',temp_dir+'../out/final_tests.csv']
+    # util.execute(temp_dir, command, log_path, err_log_path)
+    # # I am not sure if this necessay, kind of worry that the program returns without execution finishes
+    # time.sleep(2)
+
+    # hard coded for now, to get the choose the input file
+    #output_file = app_path + '/static/data/output_test.csv'
+    output_file = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/out/final_tests.csv'
+
     return util.fire_out_file_processing(output_file)
 
 @app.route('/api/fire_data/metadata')
@@ -62,7 +76,9 @@ def update_veg_file_post():
 
         command = ['./simulator',temp_dir+'../data/fixed.fuel',temp_dir+'../data/fire_info.csv',temp_dir+'../out/final_tests.csv']
         util.execute(temp_dir, command, log_path, err_log_path)
-        
+        # I am not sure if this necessay, kind of worry that the program returns without execution finishes
+        # time.sleep(10)
+
         return 'success'
 
     elif request.method == 'GET':
