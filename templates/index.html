@@ -53,7 +53,8 @@
                     {% endif %}  
                         <input id={{loop.index0}} type="radio" value={{item}}
                                name="vegcode-select" autocomplete="off">
-                        <!-- <span class="legend" id={{loop.index0}}>&#9608;</span>    -->
+                               <!-- for more shapes http://www.w3schools.com/charsets/ref_utf_geometric.asp -->
+                        <span class="legend" id="{{loop.index0}}square">&#9635;</span>
                         {{item}}
                     </label>
                 {% endfor %}

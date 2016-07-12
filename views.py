@@ -102,6 +102,14 @@ def index_page():
     # hard coded for now, to get the choose the input file
     output_file = app_path + '/static/data/veg_data.csv'
     a,veg_option,c = util.get_veg_types(output_file)
+    app_root = os.path.dirname(os.path.abspath(__file__))
+    # this will be replaced by argv[]
+    temp_dir = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/build/'
+    log_path = app_root + '/log.txt'
+    err_log_path = app_root + '/err_log.txt'
+
+    command = ['./simulator',temp_dir+'../data/fixed.fuel',temp_dir+'../data/fire_info.csv',temp_dir+'../out/final_tests.csv']
+    util.execute(temp_dir, command, log_path, err_log_path)
     return render_template("index.html",veg_option=veg_option)
 
 # @app.route('/api/onfire_cell_json/<timestep>')

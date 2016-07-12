@@ -193,15 +193,16 @@ $(document).ready(function(){
   {
 
       canvas2DContext.globalAlpha = 1.0;
-
+      var tempColor = hexToRgb(colorScale[1]);
+      var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
       for(var m=0 ; m<dataY ; m++)
       {
         for(var i=0 ; i<dataX ; i++)
         {
-          // if(currentTime == fireCurrent[i+m*dataX])
+          
           if(currentTime == parseInt(fireCurrent[m][i]))
           {
-            canvas2DContext.fillStyle = colorScale[1];
+            canvas2DContext.fillStyle = tempColorString;
             //                          start x,     y,            width,    height
             canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
             // draw lines to separate cell
@@ -231,12 +232,34 @@ $(document).ready(function(){
         vegCellWidth = canvasWidth/vegColNum;
         vegCellHeight = canvasHeight/vegRowNum;
 
+        // generate button color
+        for(var i=0; i<vegColorScale.length; i++)
+        {
+          $("#"+i.toString()+"square").css("color",vegColorScale[i]);
+        }
         updateVeg();
 
       });
       
   }
 
+  // componentToHex, rgbToHex, and hexToRgb from http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+  function componentToHex(c) {
+      var hex = c.toString(16);
+      return hex.length == 1 ? "0" + hex : hex;
+  }
+
+  function rgbToHex(r, g, b) {
+      return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+  }  
+  function hexToRgb(hex) {
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16)
+      } : null;
+  }
   function updateVeg()
   {
 
@@ -247,7 +270,7 @@ $(document).ready(function(){
       {
         // canvas2DContext.fillStyle = colorScale[0];
         canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(veg2DGrid[m][i]))];
-        //                          start x,     y,            width,    height
+        //                          start x,     y,            width,    height,          opacity
         canvas2DContext.fillRect(vegCellWidth*i,vegCellHeight*m,vegCellWidth,vegCellHeight);
         // draw lines to separate cell
         //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);

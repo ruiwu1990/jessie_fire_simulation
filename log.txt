@@ -45,5 +45,5 @@ notsetfire: 32767
 25215
 Propgation Copy To Device
 BD Copy From Device
-Processing Simulation took 1.88934 seconds
+Processing Simulation took 1.91572 seconds
 Simulation Complete
