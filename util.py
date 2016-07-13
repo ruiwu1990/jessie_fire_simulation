@@ -261,6 +261,20 @@ def execute(directory, command, log_path=None, err_log_path=None):
     process.wait()
     return True
 
+def exec_model():
+    '''
+    This function is used to exec fire model
+    with different inputs and outputs
+    '''
+    app_root = os.path.dirname(os.path.abspath(__file__))
+    log_path = app_root + '/log.txt'
+    err_log_path = app_root + '/err_log.txt'
+    data_folder = app_root + '/static/data'
+    command = ['./simulator',data_folder+'/temp_upload_fuel',data_folder+'/temp_upload_onfire',data_folder+'/temp_final_tests.csv']
+    exec_dir = app_root + '/../firesim/build/'
+    execute(exec_dir, command, log_path, err_log_path)
+
+
 # def line_prepender(filename, line):
 #     '''
 #     This function is from http://stackoverflow.com/questions/5914627/prepend-line-to-beginning-of-a-file

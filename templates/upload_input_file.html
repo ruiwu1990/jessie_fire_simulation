@@ -28,9 +28,20 @@
       <div id='uploadfileDiv'>
         <h4 style="color:red">Please upload input files for fire simulation models</h4>
         <form action="/upload_process" method="post" enctype="multipart/form-data">
-          <input type="file" name="file1"><br />
-          <input type="file" name="file2"><br />
-          <input type="submit" value="Upload">
+            <p>
+                <label for="fixedFuelID" >Fixed fuel 
+                    <input type="file" name="file1" id='fixedFuelID' > 
+                </label>
+            </p>
+            <p>
+                <label for="onFireCellID" >On fire cell
+                    <input type="file" name="file2" id='onFireCellID' > 
+                </label>
+            </p>
+            <p>
+                <input type="submit" value="Upload">
+            </p>
+
         </form>
       </div>
 

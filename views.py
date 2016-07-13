@@ -5,50 +5,34 @@ import shutil
 import time
 app = Flask(__name__)
 
-app_path = os.path.dirname(os.path.realpath('__file__'))
+app_path = os.path.dirname(os.path.abspath(__file__))
 
 @app.route('/api/veg_data')
 def obtain_veg_data():
-    # hard coded for now, to get the choose the input file
-    output_file = app_path + '/static/data/veg_data.csv'
+    # start////////
+    output_file = app_path + '/static/data/temp_upload_fuel'
     # also I should get a fnuction to get output data col and row num
     return util.veg_out_file_processing(output_file,642,906)
 
 @app.route('/api/fire_data')
 def obtain_fire_data():
     # replace veg with the original one
-    temp_data_folder = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/data/'
+    temp_data_folder = app_path + '/../firesim/data/'
     shutil.move(temp_data_folder+'origin_fixed.fuel',temp_data_folder+'fixed.fuel')
     shutil.copy(temp_data_folder+'fixed.fuel',temp_data_folder+'origin_fixed.fuel')
 
-    # # This part should be improved, using another page to load file and run model
-    # app_root = os.path.dirname(os.path.abspath(__file__))
-    # # this will be replaced by argv[]
-    # temp_dir = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/build/'
-    # log_path = app_root + '/log.txt'
-    # err_log_path = app_root + '/err_log.txt'
-
-    # command = ['./simulator',temp_dir+'../data/fixed.fuel',temp_dir+'../data/fire_info.csv',temp_dir+'../out/final_tests.csv']
-    # util.execute(temp_dir, command, log_path, err_log_path)
-    # # I am not sure if this necessay, kind of worry that the program returns without execution finishes
-    # time.sleep(2)
-
-    # hard coded for now, to get the choose the input file
-    #output_file = app_path + '/static/data/output_test.csv'
-    output_file = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/out/final_tests.csv'
+    output_file = app_path + '/../firesim/out/final_tests.csv'
 
     return util.fire_out_file_processing(output_file)
 
 @app.route('/api/fire_data/metadata')
 def obtain_fire_meta_data():
-    # hard coded for now, to get the choose the input file
-    output_file = app_path + '/static/data/output_test.csv'
+    output_file = app_path + '/static/data/temp_final_tests.csv'
     return util.get_fire_meta_data(output_file)
 
 @app.route('/api/fire_frame_data/<start>/<end>')
 def obtain_fire_frame_data(start='',end=''):
-    # hard coded for now, to get the choose the input file
-    output_file = app_path + '/static/data/output_test.csv'
+    output_file = app_path + '/static/data/temp_final_tests.csv'
     return util.get_fire_data_by_timestep(output_file,int(start),int(end))
 
 @app.route('/api/update_veg_file', methods=['POST','GET'])
@@ -64,26 +48,16 @@ def update_veg_file_post():
         # TODO hard coded file name and location here
         # output_file = app_path + '/static/data/test_veg_output.csv'
         # this will be replaced by argv[]
-        output_file = "/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/data/fixed.fuel"
+        output_file = app_path + '/static/data/temp_upload_fuel'
 
         util.update_veg_file(output_file,veg_meta,veg_2D_grid)
 
-        app_root = os.path.dirname(os.path.abspath(__file__))
-        # this will be replaced by argv[]
-        temp_dir = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/build/'
-        log_path = app_root + '/log.txt'
-        err_log_path = app_root + '/err_log.txt'
-
-        command = ['./simulator',temp_dir+'../data/fixed.fuel',temp_dir+'../data/fire_info.csv',temp_dir+'../out/final_tests.csv']
-        util.execute(temp_dir, command, log_path, err_log_path)
-        # I am not sure if this necessay, kind of worry that the program returns without execution finishes
-        # time.sleep(10)
-
+        util.exec_model()
         return 'success'
 
     elif request.method == 'GET':
-        # # hard coded for now, to get the choose the input file
-        output_file = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/out/final_tests.csv'
+        # this is where I store the results
+        output_file = app_path + '/static/data/temp_final_tests.csv'
 
         return util.fire_out_file_processing(output_file)
 
@@ -97,30 +71,15 @@ def get_update_veg():
     return send_from_directory(folder,filename)
 
 
-@app.route('/')
+@app.route('/fire_vis')
 def index_page():
     # hard coded for now, to get the choose the input file
     output_file = app_path + '/static/data/veg_data.csv'
     a,veg_option,c = util.get_veg_types(output_file)
-    app_root = os.path.dirname(os.path.abspath(__file__))
-    # this will be replaced by argv[]
-    temp_dir = '/cse/hpcvis/vrdemo/Desktop/fire_folder/firesim/build/'
-    log_path = app_root + '/log.txt'
-    err_log_path = app_root + '/err_log.txt'
 
-    command = ['./simulator',temp_dir+'../data/fixed.fuel',temp_dir+'../data/fire_info.csv',temp_dir+'../out/final_tests.csv']
-    util.execute(temp_dir, command, log_path, err_log_path)
-    return render_template("index.html",veg_option=veg_option)
-
-# @app.route('/api/onfire_cell_json/<timestep>')
-# def api_onfire_json():
-# 	'''
-# 	this is an api to return onfire cell
-# 	the json format is like this
-# 	{'onfire':[[col0,row0],[col1,row1],[col2,row2]...]}
-# 	'''
-#     return render_template("index.html")    
-
+    util.exec_model()
+    return render_template("fire_vis.html",veg_option=veg_option)
+  
 
 @app.route('/upload')
 def upload_file_page():
@@ -140,12 +99,15 @@ def upload_file_process():
     app_root = os.path.dirname(os.path.abspath(__file__))
     data_folder = app_root + '/static/data'
     #file_full_path = data_folder + '/temp_upload_data'
-    file_full_path1 = data_folder + '/temp_upload_data1'
-    file_full_path2 = data_folder + '/temp_upload_data2'
+    file_full_path1 = data_folder + '/temp_upload_fuel'
+    file_full_path2 = data_folder + '/temp_upload_onfire'
     #file.save(file_full_path)
     file1.save(file_full_path1)
     file2.save(file_full_path2)
-    return render_template("index.html")
+    # do the process and exec here
+    a,veg_option,c = util.get_veg_types(file_full_path1)
+    util.exec_model()
+    return render_template("fire_vis.html",veg_option=veg_option)
 
 @app.route('/api/update_fire_info', methods=['POST'])
 def update_fire_info():
