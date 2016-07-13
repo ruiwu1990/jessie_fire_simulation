@@ -71,11 +71,17 @@ def get_update_veg():
     return send_from_directory(folder,filename)
 
 
-@app.route('/fire_vis')
-def index_page():
-    # hard coded for now, to get the choose the input file
-    output_file = app_path + '/static/data/veg_data.csv'
-    a,veg_option,c = util.get_veg_types(output_file)
+@app.route('/fire_vis/<folder_name>')
+def fire_vis_func(folder_name=''):
+    temp_folder = app_path + '/static/data/existing/' + folder_name;
+    shutil.move(temp_folder+'/temp_upload_fuel',temp_folder+'/../../temp_upload_fuel')
+    shutil.copy(temp_folder+'/../../temp_upload_fuel',temp_folder+'/temp_upload_fuel')
+
+    shutil.move(temp_folder+'/temp_upload_onfire',temp_folder+'/../../temp_upload_onfire')
+    shutil.copy(temp_folder+'/../../temp_upload_onfire',temp_folder+'/temp_upload_onfire')
+
+    veg_file = app_path + '/static/data/temp_upload_fuel'
+    a,veg_option,c = util.get_veg_types(veg_file)
 
     util.exec_model()
     return render_template("fire_vis.html",veg_option=veg_option)
@@ -86,7 +92,9 @@ def upload_file_page():
     '''
     use this function to display upload html page
     '''
-    return render_template("upload_input_file.html")
+    existing_folder = app_path + '/static/data/existing'
+    dataset_name_list = os.listdir(existing_folder)
+    return render_template("upload_input_file.html", dataset_name_list=dataset_name_list)
 
 @app.route('/upload_process', methods=['POST'])
 def upload_file_process():
@@ -96,8 +104,8 @@ def upload_file_process():
     # TODO check file extension
     file1 = request.files['file1']
     file2 = request.files['file2']
-    app_root = os.path.dirname(os.path.abspath(__file__))
-    data_folder = app_root + '/static/data'
+
+    data_folder = app_path + '/static/data'
     #file_full_path = data_folder + '/temp_upload_data'
     file_full_path1 = data_folder + '/temp_upload_fuel'
     file_full_path2 = data_folder + '/temp_upload_onfire'
