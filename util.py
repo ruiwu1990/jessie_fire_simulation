@@ -117,14 +117,19 @@ def get_fire_data_by_timestep(fire_out_file,start_time,end_time):
     fire_data = [[[]]*int(num_rows)]*(end_time-start_time+1)
     count = 0
     for line in fp:
-        temp_list = line.strip().split(',')
-        # need to pop the last element, coz each row of the output file 
-        # is like this '...,', so the last element will be '' after split(',')
-        temp_list.pop()
+        # doing this coz andy's program generates strange file, each line, ends with ,
+        temp_bad_list = line.strip().split(',')
+        # remove the final element ''
+        temp_bad_list.pop()
+        temp_list = map(int,temp_bad_list)
+        
         for i in range(len(fire_data)):
             temp_item = []
             for m in temp_list:
-                if m<=(i+start_time):
+                if m < start_time:
+                    # -1 means before start, on fire
+                    temp_item.append(-1)
+                elif m<=(i+start_time):
                     # 1 means on fire
                     temp_item.append(1)
                 else:

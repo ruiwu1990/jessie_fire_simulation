@@ -21,7 +21,8 @@ def obtain_fire_data():
     shutil.move(temp_data_folder+'origin_fixed.fuel',temp_data_folder+'fixed.fuel')
     shutil.copy(temp_data_folder+'fixed.fuel',temp_data_folder+'origin_fixed.fuel')
 
-    output_file = app_path + '/../firesim/out/final_tests.csv'
+    data_folder = app_path + '/static/data'
+    output_file = data_folder+'/temp_final_tests.csv'
 
     return util.fire_out_file_processing(output_file)
 
@@ -117,6 +118,25 @@ def upload_file_process():
     util.exec_model()
     return render_template("fire_vis.html",veg_option=veg_option)
 
+@app.route('/upload_files', methods=['POST'])
+def upload_fire_file():
+    '''
+    use this function to process upload files
+    '''
+    # TODO check file extension
+    file1 = request.files['file1']
+    file2 = request.files['file2']
+
+    data_folder = app_path + '/static/data'
+    #file_full_path = data_folder + '/temp_upload_data'
+    file_full_path1 = data_folder + '/temp_upload_fuel'
+    file_full_path2 = data_folder + '/temp_upload_onfire'
+    #file.save(file_full_path)
+    file1.save(file_full_path1)
+    file2.save(file_full_path2)
+
+    return 'success'
+
 @app.route('/api/update_fire_info', methods=['POST'])
 def update_fire_info():
     '''
@@ -132,6 +152,28 @@ def update_fire_info():
     util.update_onfire_file(fire_file, fire_info_arr)
 
     return 'success'
+
+@app.route('/api/get_final_results', methods=['GET'])
+def get_fire_results():
+    '''
+    this function is used to get the final fire results
+    '''
+    filename = 'temp_final_tests.csv'
+    folder = app_path + '/static/data/'
+    util.exec_model()
+    return send_from_directory(directory=folder, filename=filename)
+
+@app.route('/api/get_log', methods=['GET'])
+def get_log():
+    filename = 'log.txt'
+    folder = app_path + '/'
+    return send_from_directory(directory=app_path, filename=filename)
+
+@app.route('/api/get_err_log', methods=['GET'])
+def get_err_log():
+    filename = 'err_log.txt'
+    folder = app_path + '/'
+    return send_from_directory(directory=app_path, filename=filename)
 
 if __name__ == '__main__':
     app.debug = True
