@@ -71,6 +71,8 @@ $(document).ready(function(){
   var vegCode;
   var vegMetaData;
 
+  var onFireCell = [];
+
 
   $.get('/api/fire_data', function(data){
 
@@ -81,6 +83,7 @@ $(document).ready(function(){
     dataY = inputJson['num_rows'];
     
     fireOrigin = inputJson["fire_data"].slice();
+    onFireCell = inputJson["fire_data"].slice();
 
     var maxTime = inputJson['max_val'];
     var notsetfireVal = inputJson['notsetfire_Val'];
@@ -168,7 +171,7 @@ $(document).ready(function(){
   }
   // TODO, cannot use url to get google map image based on the two corners
   function setupBackgroundMap()
-  {
+  {veg2DGrid[tempRow][tempCol] = value1.colorNum
     // backgroundMap.onload = function(){
     //   canvas2DContext.globalAlpha = 0.5;
     //   canvas2DContext.drawImage(backgroundMap, 0, 0);
@@ -375,6 +378,60 @@ $(document).ready(function(){
     // updateMapOverlay();
   });
 
+
+  $("#save-fire-update").click(function(){
+
+    $.each(chosenAreaInfo, function(index1, value1) {
+      //var tempColor = value1.colorNum;
+      $.each(value1.chosenArea,function(index2,value2){
+        // convert 1D into 2D, this is coz of recordChosenAreaInfo using 1D but veg2DGrid is 2D
+        var tempRow = Math.floor(value2/vegColNum);
+        var tempCol = value2%vegColNum;
+        // 2 means on fire by users
+        onFireCell[tempRow][tempCol] = 2;
+        var tempColor = hexToRgb(colorScale[1]);
+        var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
+
+        // canvas2DContext.fillStyle = colorScale[0];
+        canvas2DContext.fillStyle = tempColorString;
+        //                          start x,     y,            width,    height
+        canvas2DContext.fillRect(vegCellWidth*tempCol,vegCellHeight*tempRow,vegCellWidth,vegCellHeight);
+
+      });
+    });
+
+
+  // TODO need to merge fire update and veg post
+  $("#post-fire-update").click(function(){
+    // post the update info back to server
+    $.ajax({
+        type : "POST",
+        url : "/api/update_fire_file",
+        data: JSON.stringify(
+          {
+            veg_meta: vegMetaData,
+            fire_2D_grid: onFireCell
+          }, null, '\t'),
+        contentType: 'application/json',
+        success: function(result) {
+
+          $.get('/api/update_fire_file', function(data){
+              inputJson = JSON.parse(data);
+              fireCurrent = inputJson["fire_data"].slice();
+              $('#startButtonID').trigger("click");
+          });
+
+        }
+    });
+
+  });
+
+
+    // TODO send changes back to server
+
+    // update map overlay
+    // updateMapOverlay();
+  });
 
   // this is from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
   // get the mouse position, based on px

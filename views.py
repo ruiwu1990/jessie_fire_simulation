@@ -63,6 +63,32 @@ def update_veg_file_post():
         return util.fire_out_file_processing(output_file)
 
 
+@app.route('/api/update_fire_file', methods=['POST','GET'])
+def update_fire_file_post():
+    '''
+    This function update the fire file and rerun the model
+    with the updated info
+    '''
+    if request.method == 'POST':
+        veg_meta = request.json['veg_meta']
+        veg_2D_grid = request.json['fire_2D_grid']
+
+        # TODO hard coded file name and location here
+        # output_file = app_path + '/static/data/test_veg_output.csv'
+        # this will be replaced by argv[]
+        output_file = app_path + '/static/data/temp_upload_fuel'
+
+        util.update_veg_file(output_file,veg_meta,veg_2D_grid)
+
+        util.exec_model()
+        return 'success'
+
+    elif request.method == 'GET':
+        # this is where I store the results
+        output_file = app_path + '/static/data/temp_final_tests.csv'
+
+        return util.fire_out_file_processing(output_file)
+
 
 @app.route('/api/get_update_veg')
 def get_update_veg():
