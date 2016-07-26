@@ -409,7 +409,6 @@ $(document).ready(function(){
         url : "/api/update_fire_file",
         data: JSON.stringify(
           {
-            veg_meta: vegMetaData,
             fire_2D_grid: onFireCell
           }, null, '\t'),
         contentType: 'application/json',

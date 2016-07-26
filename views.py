@@ -46,9 +46,6 @@ def update_veg_file_post():
         veg_meta = request.json['veg_meta']
         veg_2D_grid = request.json['veg_2D_grid']
 
-        # TODO hard coded file name and location here
-        # output_file = app_path + '/static/data/test_veg_output.csv'
-        # this will be replaced by argv[]
         output_file = app_path + '/static/data/temp_upload_fuel'
 
         util.update_veg_file(output_file,veg_meta,veg_2D_grid)
@@ -70,15 +67,11 @@ def update_fire_file_post():
     with the updated info
     '''
     if request.method == 'POST':
-        veg_meta = request.json['veg_meta']
-        veg_2D_grid = request.json['fire_2D_grid']
+        fire_2D_grid = request.json['fire_2D_grid']
 
-        # TODO hard coded file name and location here
-        # output_file = app_path + '/static/data/test_veg_output.csv'
-        # this will be replaced by argv[]
-        output_file = app_path + '/static/data/temp_upload_fuel'
+        output_file = app_path + '/static/data/temp_upload_onfire'
 
-        util.update_veg_file(output_file,veg_meta,veg_2D_grid)
+        util.update_on_fire_file(output_file,fire_2D_grid)
 
         util.exec_model()
         return 'success'

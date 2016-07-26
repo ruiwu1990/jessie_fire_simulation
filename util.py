@@ -180,6 +180,52 @@ def update_veg_file(veg_file,meta_data,veg_2D_grid):
 
     fp.close()
 
+def fit_high_resolution_into_low(high_rows,high_cols,low_rows,low_cols,cur_row,cur_col):
+    '''
+    this function is used to change high resolution into low
+    (len/high_cols)*cur_col = (len/low_cols)*aim_col =>aim_col = (low_cols*cur_col)/high_cols
+    '''
+    # aim_col will be int since low_cols, cur_col, and high_cols are ints
+    aim_col = (low_cols*cur_col)/high_cols
+    aim_row = (low_rows*cur_row)/high_rows
+    return aim_row,aim_col
+
+def update_on_fire_file(fire_file,fire_2D_grid):
+    fp = open(fire_file, 'wb')
+    # write meta data
+    # I hard coded here to write metadata
+    fp.write('left_top_lat:61.8819050\n')
+    fp.write('left_top_long:40.17204368\n')
+    fp.write('right_bottom_lat:62.7417377\n')
+    fp.write('right_bottom_long:40.11111514\n')
+    fp.write('numrows:642\n')
+    fp.write('numcols:906\n')
+    fp.write('lmaxval:1862\n')
+    fp.write('notsetfire:32767\n')
+    # this part is also hard coded, should be extracted from files or as inputs
+    dem_rows = 642
+    dem_cols = 906
+    veg_rows = 203
+    veg_cols = 287
+
+    final_fire_2D_grid = [[0]*dem_cols]*dem_rows
+    for r in range(dem_rows):
+        for c in range(dem_cols):
+            temp_row, temp_col = fit_high_resolution_into_low(dem_rows,dem_cols,veg_rows,veg_cols,r,c)
+            # if the cell is 2 set fire by users
+            if int(fire_2D_grid[temp_row][temp_col]) == 2:
+                print 'row is:'+str(r)+'; col is:'+str(c)+'; temp_row is:'+str(temp_row)+'; temp_col is:'+str(temp_col)
+                final_fire_2D_grid[r][c] = 1
+            # else:
+            #     final_fire_2D_grid[r][c] = 0
+    # change veg resolution into dem resolution
+    for item in final_fire_2D_grid:
+        line = [str(i) for i in item]
+        line.append('\n')
+        fp.write(' '.join(line))
+
+    fp.close()
+
 def get_veg_types(veg_out_file):
     '''
     # this function is used to get possible vegtation types
