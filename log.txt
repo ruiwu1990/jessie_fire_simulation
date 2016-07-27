@@ -42,8 +42,8 @@ lmaxval: 1862
 notsetfire 32767
 
 notsetfire: 32767
-5136
+9
 Propgation Copy To Device
 BD Copy From Device
-Processing Simulation took 1.93395 seconds
+Processing Simulation took 1.91842 seconds
 Simulation Complete

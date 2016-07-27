@@ -183,9 +183,11 @@ def update_veg_file(veg_file,meta_data,veg_2D_grid):
 def fit_high_resolution_into_low(high_rows,high_cols,low_rows,low_cols,cur_row,cur_col):
     '''
     this function is used to change high resolution into low
-    (len/high_cols)*cur_col = (len/low_cols)*aim_col =>aim_col = (low_cols*cur_col)/high_cols
+    (len/high_cols)*aim_col = (len/low_cols)*cur_col =>aim_col = (high_cols*cur_col)/low_cols
     '''
     # aim_col will be int since low_cols, cur_col, and high_cols are ints
+    # aim_col = (high_cols*cur_col)/low_cols
+    # aim_row = (high_rows*cur_row)/low_rows
     aim_col = (low_cols*cur_col)/high_cols
     aim_row = (low_rows*cur_row)/high_rows
     return aim_row,aim_col
@@ -208,16 +210,30 @@ def update_on_fire_file(fire_file,fire_2D_grid):
     veg_rows = 203
     veg_cols = 287
 
-    final_fire_2D_grid = [[0]*dem_cols]*dem_rows
-    for r in range(dem_rows):
-        for c in range(dem_cols):
-            temp_row, temp_col = fit_high_resolution_into_low(dem_rows,dem_cols,veg_rows,veg_cols,r,c)
-            # if the cell is 2 set fire by users
-            if int(fire_2D_grid[temp_row][temp_col]) == 2:
-                print 'row is:'+str(r)+'; col is:'+str(c)+'; temp_row is:'+str(temp_row)+'; temp_col is:'+str(temp_col)
-                final_fire_2D_grid[r][c] = 1
-            # else:
-            #     final_fire_2D_grid[r][c] = 0
+    # cannot use this final_fire_2D_grid = [[0]*dem_cols]*dem_rows, coz it will cauze a[0][0]=1 then all the a[0][_] will be 1
+    final_fire_2D_grid = [[0]*dem_cols for _ in range(dem_rows)]
+
+    # for r in range(dem_rows):
+    #     for c in range(dem_cols):
+    #         temp_row, temp_col = fit_high_resolution_into_low(dem_rows,dem_cols,veg_rows,veg_cols,r,c)
+    #         # if the cell is 2 set fire by users
+    #         if int(fire_2D_grid[temp_row][temp_col]) == 2:
+    #             print 'row is:'+str(r)+'; col is:'+str(c)+'; temp_row is:'+str(temp_row)+'; temp_col is:'+str(temp_col)
+    #             final_fire_2D_grid[r][c] = 1
+
+    for row in range(veg_rows):
+        for col in range(veg_cols):
+            if int(fire_2D_grid[row][col]) == 2:
+                for r in range(dem_rows):
+                    for c in range(dem_cols):
+                        temp_row, temp_col = fit_high_resolution_into_low(dem_rows,dem_cols,veg_rows,veg_cols,r,c)
+                        # if the cell is 2 set fire by users
+                        if temp_row==row and temp_col==col:
+                            print 'row is:'+str(r)+'; col is:'+str(c)+'; temp_row is:'+str(temp_row)+'; temp_col is:'+str(temp_col)
+                            final_fire_2D_grid[r][c] = 1
+
+
+
     # change veg resolution into dem resolution
     for item in final_fire_2D_grid:
         line = [str(i) for i in item]
