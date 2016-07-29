@@ -349,9 +349,11 @@ $(document).ready(function(){
 
   $("#post-veg-update").click(function(){
     // post the update info back to server
+    var wind_x = $('#wind_x').val().toString();
+    var wind_y = $('#wind_y').val().toString();
     $.ajax({
         type : "POST",
-        url : "/api/update_veg_file",
+        url : "/api/update_veg_file/"+wind_x+'/'+wind_y,
         data: JSON.stringify(
           {
             veg_meta: vegMetaData,
@@ -403,10 +405,12 @@ $(document).ready(function(){
 
   // TODO need to merge fire update and veg post
   $("#post-fire-update").click(function(){
+    var wind_x = $('#wind_x').val().toString();
+    var wind_y = $('#wind_y').val().toString();
     // post the update info back to server
     $.ajax({
         type : "POST",
-        url : "/api/update_fire_file",
+        url : "/api/update_fire_file/"+wind_x+'/'+wind_y,
         data: JSON.stringify(
           {
             fire_2D_grid: onFireCell

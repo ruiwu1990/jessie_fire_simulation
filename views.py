@@ -60,6 +60,23 @@ def update_veg_file_post():
         return util.fire_out_file_processing(output_file)
 
 
+@app.route('/api/update_veg_file/<wind_x>/<wind_y>', methods=['POST'])
+def update_veg_file_wind_post(wind_x=0,wind_y=0):
+    '''
+    This function update the veg file and rerun the model
+    with the updated info and wind
+    '''
+    if request.method == 'POST':
+        veg_meta = request.json['veg_meta']
+        veg_2D_grid = request.json['veg_2D_grid']
+
+        output_file = app_path + '/static/data/temp_upload_fuel'
+
+        util.update_veg_file(output_file,veg_meta,veg_2D_grid)
+
+        util.exec_model(wind_x,wind_y)
+        return 'success'
+
 @app.route('/api/update_fire_file', methods=['POST','GET'])
 def update_fire_file_post():
     '''
@@ -82,6 +99,21 @@ def update_fire_file_post():
 
         return util.fire_out_file_processing(output_file)
 
+@app.route('/api/update_fire_file/<wind_x>/<wind_y>', methods=['POST'])
+def update_fire_file_wind_post(wind_x=0,wind_y=0):
+    '''
+    This function update the fire file and rerun the model
+    with the updated info with wind
+    '''
+    if request.method == 'POST':
+        fire_2D_grid = request.json['fire_2D_grid']
+
+        output_file = app_path + '/static/data/temp_upload_onfire'
+
+        util.update_on_fire_file(output_file,fire_2D_grid)
+
+        util.exec_model(wind_x,wind_y)
+        return 'success'
 
 @app.route('/api/get_update_veg')
 def get_update_veg():
@@ -106,6 +138,21 @@ def fire_vis_func(folder_name=''):
     util.exec_model()
     return render_template("fire_vis.html",veg_option=veg_option)
   
+@app.route('/fire_vis/<folder_name>/<wind_x>/<wind_y>')
+def fire_vis_wind_func(folder_name='',wind_x=0,wind_y=0):
+    temp_folder = app_path + '/static/data/existing/' + folder_name;
+    shutil.move(temp_folder+'/temp_upload_fuel',temp_folder+'/../../temp_upload_fuel')
+    shutil.copy(temp_folder+'/../../temp_upload_fuel',temp_folder+'/temp_upload_fuel')
+
+    shutil.move(temp_folder+'/temp_upload_onfire',temp_folder+'/../../temp_upload_onfire')
+    shutil.copy(temp_folder+'/../../temp_upload_onfire',temp_folder+'/temp_upload_onfire')
+
+    veg_file = app_path + '/static/data/temp_upload_fuel'
+    a,veg_option,c = util.get_veg_types(veg_file)
+
+    util.exec_model(wind_x,wind_y)
+    return render_template("fire_vis.html",veg_option=veg_option)
+
 
 @app.route('/upload')
 def upload_file_page():
@@ -135,6 +182,27 @@ def upload_file_process():
     # do the process and exec here
     a,veg_option,c = util.get_veg_types(file_full_path1)
     util.exec_model()
+    return render_template("fire_vis.html",veg_option=veg_option)
+
+@app.route('/upload_process/<wind_x>/<wind_y>', methods=['POST'])
+def upload_file_wind_process(wind_x=0,wind_y=0):
+    '''
+    use this function to process upload files
+    '''
+    # TODO check file extension
+    file1 = request.files['file1']
+    file2 = request.files['file2']
+
+    data_folder = app_path + '/static/data'
+    #file_full_path = data_folder + '/temp_upload_data'
+    file_full_path1 = data_folder + '/temp_upload_fuel'
+    file_full_path2 = data_folder + '/temp_upload_onfire'
+    #file.save(file_full_path)
+    file1.save(file_full_path1)
+    file2.save(file_full_path2)
+    # do the process and exec here
+    a,veg_option,c = util.get_veg_types(file_full_path1)
+    util.exec_model(wind_x,wind_y)
     return render_template("fire_vis.html",veg_option=veg_option)
 
 @app.route('/upload_files', methods=['POST'])

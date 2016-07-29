@@ -6,10 +6,11 @@ Initializing Simulation to Test Setting
 Propagation Init
 Updating Spread Data . . .
 Spread Data Calculated
-1.2527
-2.92993
-3.12942
-0.989234
+3.01506
+3.16137
+9.72154
+10.1933
+3.22218
 BD Init
 
 left_top_lat 61.8819
@@ -42,8 +43,8 @@ lmaxval: 1862
 notsetfire 32767
 
 notsetfire: 32767
-9
+25215
 Propgation Copy To Device
 BD Copy From Device
-Processing Simulation took 1.91842 seconds
+Processing Simulation took 1.97318 seconds
 Simulation Complete

@@ -188,8 +188,8 @@ def fit_high_resolution_into_low(high_rows,high_cols,low_rows,low_cols,cur_row,c
     # aim_col will be int since low_cols, cur_col, and high_cols are ints
     # aim_col = (high_cols*cur_col)/low_cols
     # aim_row = (high_rows*cur_row)/low_rows
-    aim_col = (low_cols*cur_col)/high_cols
-    aim_row = (low_rows*cur_row)/high_rows
+    aim_col = int(round(float(low_cols*cur_col)/high_cols))
+    aim_row = int(round(float(low_rows*cur_row)/high_rows))
     return aim_row,aim_col
 
 def update_on_fire_file(fire_file,fire_2D_grid):
@@ -221,16 +221,28 @@ def update_on_fire_file(fire_file,fire_2D_grid):
     #             print 'row is:'+str(r)+'; col is:'+str(c)+'; temp_row is:'+str(temp_row)+'; temp_col is:'+str(temp_col)
     #             final_fire_2D_grid[r][c] = 1
 
+    count = 0
+    count1 = 0
     for row in range(veg_rows):
         for col in range(veg_cols):
             if int(fire_2D_grid[row][col]) == 2:
+                count = count + 1
                 for r in range(dem_rows):
                     for c in range(dem_cols):
                         temp_row, temp_col = fit_high_resolution_into_low(dem_rows,dem_cols,veg_rows,veg_cols,r,c)
                         # if the cell is 2 set fire by users
                         if temp_row==row and temp_col==col:
                             print 'row is:'+str(r)+'; col is:'+str(c)+'; temp_row is:'+str(temp_row)+'; temp_col is:'+str(temp_col)
-                            final_fire_2D_grid[r][c] = 1
+                            if final_fire_2D_grid[r][c] != 1:
+                                final_fire_2D_grid[r][c] = 1
+
+    print count
+    for r in range(dem_rows):
+        for c in range(dem_cols):
+            if final_fire_2D_grid[r][c] == 1:
+                print 'row is:'+str(r)+'; col is:'+str(c)+';'
+                count1 = count1 + 1
+    print count1
 
 
 
@@ -328,7 +340,7 @@ def execute(directory, command, log_path=None, err_log_path=None):
     process.wait()
     return True
 
-def exec_model():
+def exec_model(wind_x='0',wind_y='0'):
     '''
     This function is used to exec fire model
     with different inputs and outputs
@@ -337,7 +349,7 @@ def exec_model():
     log_path = app_root + '/log.txt'
     err_log_path = app_root + '/err_log.txt'
     data_folder = app_root + '/static/data'
-    command = ['./simulator',data_folder+'/temp_upload_fuel',data_folder+'/temp_upload_onfire',data_folder+'/temp_final_tests.csv']
+    command = ['./simulator',data_folder+'/temp_upload_fuel',data_folder+'/temp_upload_onfire',data_folder+'/temp_final_tests.csv',wind_x,wind_y]
     exec_dir = app_root + '/../firesim/build/'
     execute(exec_dir, command, log_path, err_log_path)
 
