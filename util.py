@@ -340,7 +340,7 @@ def execute(directory, command, log_path=None, err_log_path=None):
     process.wait()
     return True
 
-def exec_model(wind_x='0',wind_y='0'):
+def exec_model():
     '''
     This function is used to exec fire model
     with different inputs and outputs
@@ -349,7 +349,7 @@ def exec_model(wind_x='0',wind_y='0'):
     log_path = app_root + '/log.txt'
     err_log_path = app_root + '/err_log.txt'
     data_folder = app_root + '/static/data'
-    command = ['./simulator',data_folder+'/temp_upload_fuel',data_folder+'/temp_upload_onfire',data_folder+'/temp_final_tests.csv',wind_x,wind_y]
+    command = ['./simulator',data_folder+'/temp_upload_fuel',data_folder+'/temp_upload_onfire',data_folder+'/temp_final_tests.csv',data_folder+'/temp_windx.fuel',data_folder+'/temp_windy.fuel']
     exec_dir = app_root + '/../firesim/build/'
     execute(exec_dir, command, log_path, err_log_path)
 
