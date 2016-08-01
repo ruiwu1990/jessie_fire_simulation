@@ -249,8 +249,8 @@ def update_on_fire_file(fire_file,fire_2D_grid):
     # change veg resolution into dem resolution
     for item in final_fire_2D_grid:
         line = [str(i) for i in item]
-        line.append('\n')
-        fp.write(' '.join(line))
+        # line.append('\n')
+        fp.write(','.join(line)+'\n')
 
     fp.close()
 
