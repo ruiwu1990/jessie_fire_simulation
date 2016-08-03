@@ -348,8 +348,8 @@ def exec_model():
     app_root = os.path.dirname(os.path.abspath(__file__))
     log_path = app_root + '/log.txt'
     err_log_path = app_root + '/err_log.txt'
-    data_folder = app_root + '/static/data'
-    command = ['./simulator',data_folder+'/temp_upload_fuel',data_folder+'/temp_upload_onfire',data_folder+'/temp_final_tests.csv',data_folder+'/temp_windx.fuel',data_folder+'/temp_windy.fuel']
+    data_folder = app_root + '/static/data/'
+    command = ['./simulator','temp_upload_fuel','temp_upload_onfire','temp_final_tests.csv','temp_windx.fuel','temp_windy.fuel', data_folder]
     exec_dir = app_root + '/../firesim/build/'
     execute(exec_dir, command, log_path, err_log_path)
 
