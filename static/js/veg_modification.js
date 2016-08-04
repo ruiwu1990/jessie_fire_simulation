@@ -76,6 +76,16 @@ $(document).ready(function(){
 
   $.get('/api/fire_data', function(data){
 
+    // get the veg info for the labels
+    $.get('/api/get_veg_info',function(veg_info){
+      var veg_json = JSON.parse(veg_info);
+      var veg_option_num = parseInt($('#item_num').text());
+      for(var i=0; i<veg_option_num; i++)
+      {
+        $('#'+i.toString()+'label').attr('title',veg_json[$('#'+i.toString()).val()]);
+      }
+    });
+
     inputJson = JSON.parse(data);
 
     // grab col and row num
@@ -113,33 +123,33 @@ $(document).ready(function(){
 
     initCanvas();
 
-    $('#startButtonID').on('click',function(){
-      setIntervalID = setInterval(updateCanvas, 10);
+    // $('#startButtonID').on('click',function(){
+    //   setIntervalID = setInterval(updateCanvas, 10);
 
-      $('#stopButtonID').on('click',function(){
-        clearInterval(setIntervalID);
-      });
+    //   $('#stopButtonID').on('click',function(){
+    //     clearInterval(setIntervalID);
+    //   });
 
-      $('#getOnFireButtonID').on('click',function(){
-        clearInterval(setIntervalID);
-        var onFireInfo = getOnFireInfo();
-        $.ajax({
-              type : "POST",
-              url : "/api/update_fire_info",
-              data: JSON.stringify(
-                {
-                  fire_info_arr: onFireInfo,
-                  num_cols: dataX,
-                  num_rows: dataY
-                }, null, '\t'),
-              contentType: 'application/json',
-              success: function(result) {
+    //   $('#getOnFireButtonID').on('click',function(){
+    //     clearInterval(setIntervalID);
+    //     var onFireInfo = getOnFireInfo();
+    //     $.ajax({
+    //           type : "POST",
+    //           url : "/api/update_fire_info",
+    //           data: JSON.stringify(
+    //             {
+    //               fire_info_arr: onFireInfo,
+    //               num_cols: dataX,
+    //               num_rows: dataY
+    //             }, null, '\t'),
+    //           contentType: 'application/json',
+    //           success: function(result) {
 
-              }
-          });
+    //           }
+    //       });
 
-      });
-    });
+    //   });
+    // });
     
 
 
@@ -380,61 +390,6 @@ $(document).ready(function(){
     // updateMapOverlay();
   });
 
-
-  $("#save-fire-update").click(function(){
-
-    $.each(chosenAreaInfo, function(index1, value1) {
-      //var tempColor = value1.colorNum;
-      $.each(value1.chosenArea,function(index2,value2){
-        // convert 1D into 2D, this is coz of recordChosenAreaInfo using 1D but veg2DGrid is 2D
-        var tempRow = Math.floor(value2/vegColNum);
-        var tempCol = value2%vegColNum;
-        // 2 means on fire by users
-        onFireCell[tempRow][tempCol] = 2;
-        var tempColor = hexToRgb(colorScale[1]);
-        var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
-
-        // canvas2DContext.fillStyle = colorScale[0];
-        canvas2DContext.fillStyle = tempColorString;
-        //                          start x,     y,            width,    height
-        canvas2DContext.fillRect(vegCellWidth*tempCol,vegCellHeight*tempRow,vegCellWidth,vegCellHeight);
-
-      });
-    });
-
-
-  // TODO need to merge fire update and veg post
-  $("#post-fire-update").click(function(){
-    // var wind_x = $('#wind_x').val().toString();
-    // var wind_y = $('#wind_y').val().toString();
-    // post the update info back to server
-    $.ajax({
-        type : "POST",
-        url : "/api/update_fire_file",
-        data: JSON.stringify(
-          {
-            fire_2D_grid: onFireCell
-          }, null, '\t'),
-        contentType: 'application/json',
-        success: function(result) {
-
-          $.get('/api/update_fire_file', function(data){
-              inputJson = JSON.parse(data);
-              fireCurrent = inputJson["fire_data"].slice();
-              $('#startButtonID').trigger("click");
-          });
-
-        }
-    });
-
-  });
-
-
-    // TODO send changes back to server
-
-    // update map overlay
-    // updateMapOverlay();
-  });
 
   // this is from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
   // get the mouse position, based on px

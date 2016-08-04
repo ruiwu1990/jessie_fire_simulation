@@ -114,18 +114,24 @@ $(document).ready(function(){
     initCanvas();
 
     $('#startButtonID').on('click',function(){
+      // used to show loading
+      var $this = $(this);
+      $this.button('loading');
+
       var temp_val = $(this).val();
       // start
       if(temp_val == 'start')
       {
         $(this).attr('value','stop');
-        $(this).html('Stop');
+        //$(this).html('Stop');
+        $this.text('Stop');
       }
       // stop
       else
       {
         $(this).attr('value','start');
-        $(this).html('Start');
+        //$(this).html('Start');
+        $this.text('Start');
       }
       if($('#input-choose-on-fire').is(":checked") && temp_val == 'start')
       {
@@ -165,18 +171,23 @@ $(document).ready(function(){
                   inputJson = JSON.parse(data);
                   fireCurrent = inputJson["fire_data"].slice();
                   startFire();
+                  $this.button('reset');
+                  $this.text('Stop');
               });
-
             }
+
         });
+
       }
       else if($('#input-choose-on-fire').is(":checked") == false && temp_val == 'start')
       {
         startFire();
+        $this.button('reset');
       }
       else if(temp_val == 'stop')
       {
         clearInterval(setIntervalID);
+        $this.button('reset');
       }
 
     });
@@ -184,6 +195,7 @@ $(document).ready(function(){
 
 
   });
+  
 
   function startFire()
   {

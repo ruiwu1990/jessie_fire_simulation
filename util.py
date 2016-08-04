@@ -353,6 +353,41 @@ def exec_model():
     exec_dir = app_root + '/../firesim/build/'
     execute(exec_dir, command, log_path, err_log_path)
 
+def json_veg_info():
+    '''
+    hard coded the infor here
+    '''
+    # this is not the full info, I am just tired to manually copy paste today
+    veg_info_dict = {
+        '1': 'Short (1 ft) grass',
+        '2': 'Timber',
+        '3': 'Tall (>2.5 ft) grass',
+        '4': 'Chapparral (6 ft)',
+        '5': 'Brush (2 ft)',
+        '6': 'Dormant brush, hardwood slash',
+        '7': 'Southern rough',
+        '8': 'Closed timber litter',
+        '9': 'Hardwood litter',
+        '10': 'Timber (litter and understory)',
+        '11': 'Light logging slash',
+        '12': 'Medium logging slash',
+        '13': 'Heavy logging slash',
+        '91': 'Urban/Developed',
+        '92': 'Snow/Ice',
+        '93': 'Agricultural',
+        '98': 'Open Water',
+        '99': 'Bare Ground',
+        '101': 'Short, Sparse Dry Climate Grass (Dynamic)',
+        '102': 'Low Load, Dry Climate Grass (Dynamic)',
+        '103': 'Low Load, Very Coarse, Humid Climate Grass (Dynamic)',
+
+        '141': 'Low Load Dry Climate Shrub (Dynamic)',
+        '142': 'Moderate Load Dry Climate Shrub',
+        '165': 'Very High Load, Dry Climate Timber-Shrub'
+
+    }
+    return json.dumps(veg_info_dict)
+
 
 # def line_prepender(filename, line):
 #     '''

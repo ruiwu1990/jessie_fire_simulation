@@ -45,12 +45,19 @@
         <div class='row'>
             <h4>You can modify vegetation or wind</h4>
             <div>
-                <button class="btn btn-default" id="veg-modification"> <!--style="width: 40%">-->
+                <button class="btn btn-default" id="veg-modification" onclick="location.href='/veg_modification';">
                     Vegetation Modification
                 </button>
-                <button class="btn btn-default" id="wind-modification"> <!--style="width: 40%">-->
+                <button class="btn btn-default" id="wind-modification" onclick="location.href='/wind_modification';"> 
                     Wind Modification
                 </button>
+                <!-- <form action="/veg_modification">
+                    <input type="submit" value="Vegetation Modification" />
+                </form>
+
+                <form action="/wind_modification">
+                    <input type="submit" value="Wind Modification" />
+                </form> -->
             </div>
         </div>
 
@@ -67,12 +74,11 @@
                 <input id="input-choose-on-fire" type="checkbox">You want to choose on fire cells?
             </div>
             <div id='buttonDivID'>
-                <button id="startButtonID" class="btn btn-default" value='start'>
+<!--                 <button id="startButtonID" class="btn btn-default" value='start'>
                     Start
-                </button>
-                <!-- <button id="stopButtonID" class="btn btn-default" >
-                    Stop
                 </button> -->
+                <button class="btn btn-primary start" id="startButtonID" value='start' data-loading-text="<i class='icon-upload icon-white'>loading...</i>">Start</button>
+
             </div>
         </div>
 

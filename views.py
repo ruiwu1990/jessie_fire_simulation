@@ -218,6 +218,21 @@ def get_err_log():
     folder = app_path + '/'
     return send_from_directory(directory=app_path, filename=filename)
 
+@app.route('/wind_modification')
+def modify_wind():
+    return render_template('modify_wind.html')
+
+@app.route('/veg_modification')
+def modify_veg():
+    veg_file = app_path + '/static/data/temp_upload_fuel'
+    a,veg_option,c = util.get_veg_types(veg_file)
+
+    return render_template("modify_veg.html",veg_option=veg_option,veg_total_num=len(veg_option))
+
+@app.route('/api/get_veg_info')
+def veg_info():
+    return util.json_veg_info()
+
 if __name__ == '__main__':
     app.debug = True
     app.run(host='0.0.0.0')
