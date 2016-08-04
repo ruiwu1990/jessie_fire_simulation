@@ -1335,7 +1335,7 @@ Propgation Copy To Device
 BD Copy TOA From Device
 BD Copy WINDX From Device
 BD Copy WINDY From Device
-Processing Simulation took 1.97886 seconds
+Processing Simulation took 1.91484 seconds
 0
 0
 0

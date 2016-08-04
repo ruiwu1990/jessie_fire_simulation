@@ -372,11 +372,7 @@ $(document).ready(function(){
         contentType: 'application/json',
         success: function(result) {
 
-          $.get('/api/update_veg_file', function(data){
-              inputJson = JSON.parse(data);
-              fireCurrent = inputJson["fire_data"].slice();
-              $('#startButtonID').trigger("click");
-          });
+          window.location.replace('/fire_vis_modified');
 
         }
     });

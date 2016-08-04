@@ -60,7 +60,10 @@ def update_veg_file_post():
         return util.fire_out_file_processing(output_file)
 
 
-
+@app.route('/fire_vis_modified')
+def rerun_fire_sim_with_modification():
+    util.exec_model()
+    return render_template("fire_vis.html")
 
 @app.route('/api/update_fire_file', methods=['POST','GET'])
 def update_fire_file_post():
@@ -113,7 +116,7 @@ def fire_vis_func(folder_name=''):
     a,veg_option,c = util.get_veg_types(veg_file)
 
     util.exec_model()
-    return render_template("fire_vis.html",veg_option=veg_option)
+    return render_template("fire_vis.html")
   
 
 
