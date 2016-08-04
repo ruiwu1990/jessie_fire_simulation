@@ -1330,12 +1330,12 @@ cols: 905
 rows: 641
 cols: 905
 rows: 642
-18
+21
 Propgation Copy To Device
 BD Copy TOA From Device
 BD Copy WINDX From Device
 BD Copy WINDY From Device
-Processing Simulation took 1.93642 seconds
+Processing Simulation took 1.9161 seconds
 0
 0
 0

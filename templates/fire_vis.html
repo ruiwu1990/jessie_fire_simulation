@@ -43,57 +43,17 @@
     <div class="row">
         
         <div class='row'>
-            <h4>Please select a vegetation type</h4>
-            <div id="vegetation-type-selector" class="btn-group" data-toggle="buttons">
-                {% for item in veg_option %}
-                    {% if loop.index0 == 0 %}
-                    <label class="btn btn-custom active" >
-                    {% else %}  
-                    <label class="btn btn-custom" >
-                    {% endif %}  
-                        <input id={{loop.index0}} type="radio" value={{item}}
-                               name="vegcode-select" autocomplete="off">
-                               <!-- for more shapes http://www.w3schools.com/charsets/ref_utf_geometric.asp -->
-                        <span class="legend" id="{{loop.index0}}square">&#9635;</span>
-                        {{item}}
-                    </label>
-                {% endfor %}
-            </div>
+            <h4>You can modify vegetation or wind</h4>
             <div>
-                <button class="btn btn-default" id="save-veg-update"> <!--style="width: 40%">-->
-                  Confirm Vegetation Modification
+                <button class="btn btn-default" id="veg-modification"> <!--style="width: 40%">-->
+                    Vegetation Modification
                 </button>
-                <button class="btn btn-default" id="post-veg-update"> <!--style="width: 40%">-->
-                  Rerun Model with Updated Veg Info
+                <button class="btn btn-default" id="wind-modification"> <!--style="width: 40%">-->
+                    Wind Modification
                 </button>
             </div>
         </div>
 
-        <div class='row'>
-            <h4>If you want to change which cells on fire</h4>
-            <div>
-                <button class="btn btn-default" id="save-fire-update"> <!--style="width: 40%">-->
-                  Fire Selection Completed
-                </button>
-                <button class="btn btn-default" id="post-fire-update"> <!--style="width: 40%">-->
-                  Run Model
-                </button>
-            </div>
-        </div>
-
-<!--         <div class='row'>
-            <h4>If you want to change the global wind</h4>
-            <form role="form">
-                <div class="form-group">
-                  <label for="wind_x">Wind X</label>
-                  <input type='number' step='0.01' class="form-control" id="wind_x" value=0>
-                </div>
-                <div class="form-group">
-                  <label for="wind_y">Wind Y</label>
-                  <input type='number' step='0.01' class="form-control" id="wind_y" value=0>
-                </div>
-            </form>
-        </div> -->
 
         <div class='row'>
             <h4>Display fire simulation with 2D map</h4>
@@ -103,22 +63,17 @@
         </div>
 
         <div class='row'>
+            <div>
+                <input id="input-choose-on-fire" type="checkbox">You want to choose on fire cells?
+            </div>
             <div id='buttonDivID'>
-                <button id="startButtonID" class="btn btn-default" >
-                    Start/Continue
+                <button id="startButtonID" class="btn btn-default" value='start'>
+                    Start
                 </button>
-                <button id="stopButtonID" class="btn btn-default" >
+                <!-- <button id="stopButtonID" class="btn btn-default" >
                     Stop
-                </button>
-                <button id="getOnFireButtonID" class="btn btn-default" >
-                    Get On Fire Info
-                </button>
+                </button> -->
             </div>
-
-            <div id='googleMapDiv' style="width:800px;height:600px;">
-            </div>
-
-            
         </div>
 
     </div>

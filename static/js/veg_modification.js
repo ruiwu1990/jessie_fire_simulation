@@ -114,82 +114,38 @@ $(document).ready(function(){
     initCanvas();
 
     $('#startButtonID').on('click',function(){
-      var temp_val = $(this).val();
-      // start
-      if(temp_val == 'start')
-      {
-        $(this).attr('value','stop');
-        $(this).html('Stop');
-      }
-      // stop
-      else
-      {
-        $(this).attr('value','start');
-        $(this).html('Start');
-      }
-      if($('#input-choose-on-fire').is(":checked") && temp_val == 'start')
-      {
-        // push the chosen cells into array
-        $.each(chosenAreaInfo, function(index1, value1) {
-          //var tempColor = value1.colorNum;
-          $.each(value1.chosenArea,function(index2,value2){
-            // convert 1D into 2D, this is coz of recordChosenAreaInfo using 1D but veg2DGrid is 2D
-            var tempRow = Math.floor(value2/vegColNum);
-            var tempCol = value2%vegColNum;
-            // 2 means on fire by users
-            onFireCell[tempRow][tempCol] = 2;
-            var tempColor = hexToRgb(colorScale[1]);
-            var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
+      setIntervalID = setInterval(updateCanvas, 10);
 
-            // canvas2DContext.fillStyle = colorScale[0];
-            canvas2DContext.fillStyle = tempColorString;
-            //                          start x,     y,            width,    height
-            canvas2DContext.fillRect(vegCellWidth*tempCol,vegCellHeight*tempRow,vegCellWidth,vegCellHeight);
-
-          });
-        });
-        // push part done
-
-        // send the rerun model request to server
-        $.ajax({
-            type : "POST",
-            url : "/api/update_fire_file",
-            data: JSON.stringify(
-              {
-                fire_2D_grid: onFireCell
-              }, null, '\t'),
-            contentType: 'application/json',
-            success: function(result) {
-
-              $.get('/api/update_fire_file', function(data){
-                  inputJson = JSON.parse(data);
-                  fireCurrent = inputJson["fire_data"].slice();
-                  startFire();
-              });
-
-            }
-        });
-      }
-      else if($('#input-choose-on-fire').is(":checked") == false && temp_val == 'start')
-      {
-        startFire();
-      }
-      else if(temp_val == 'stop')
-      {
+      $('#stopButtonID').on('click',function(){
         clearInterval(setIntervalID);
-      }
+      });
 
+      $('#getOnFireButtonID').on('click',function(){
+        clearInterval(setIntervalID);
+        var onFireInfo = getOnFireInfo();
+        $.ajax({
+              type : "POST",
+              url : "/api/update_fire_info",
+              data: JSON.stringify(
+                {
+                  fire_info_arr: onFireInfo,
+                  num_cols: dataX,
+                  num_rows: dataY
+                }, null, '\t'),
+              contentType: 'application/json',
+              success: function(result) {
+
+              }
+          });
+
+      });
     });
     
 
 
   });
 
-  function startFire()
-  {
-      clearInterval(setIntervalID);
-      setIntervalID = setInterval(updateCanvas, 10);
-  }
+
 
   function getOnFireInfo()
   {
@@ -371,9 +327,114 @@ $(document).ready(function(){
             //parseInt($('input[name="vegcode-select"]:checked').val());
       chosenAreaInfo.push({colorNum:colorOptNum,chosenArea:chosenHRU});
       chosenHRU=[];
+    });
+
+  $("#save-veg-update").click(function(){
+
+    $.each(chosenAreaInfo, function(index1, value1) {
+      //var tempColor = value1.colorNum;
+      $.each(value1.chosenArea,function(index2,value2){
+        // convert 1D into 2D, this is coz of recordChosenAreaInfo using 1D but veg2DGrid is 2D
+        var tempRow = Math.floor(value2/vegColNum);
+        var tempCol = value2%vegColNum;
+        veg2DGrid[tempRow][tempCol] = value1.colorNum;
+
+        // canvas2DContext.fillStyle = colorScale[0];
+        canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(value1.colorNum))];
+        //                          start x,     y,            width,    height
+        canvas2DContext.fillRect(vegCellWidth*tempCol,vegCellHeight*tempRow,vegCellWidth,vegCellHeight);
+
+      });
+    });
+
+  $("#post-veg-update").click(function(){
+    // post the update info back to server
+    // var wind_x = $('#wind_x').val().toString();
+    // var wind_y = $('#wind_y').val().toString();
+    $.ajax({
+        type : "POST",
+        url : "/api/update_veg_file",
+        data: JSON.stringify(
+          {
+            veg_meta: vegMetaData,
+            veg_2D_grid: veg2DGrid
+          }, null, '\t'),
+        contentType: 'application/json',
+        success: function(result) {
+
+          $.get('/api/update_veg_file', function(data){
+              inputJson = JSON.parse(data);
+              fireCurrent = inputJson["fire_data"].slice();
+              $('#startButtonID').trigger("click");
+          });
+
+        }
+    });
+
   });
 
 
+    // TODO send changes back to server
+
+    // update map overlay
+    // updateMapOverlay();
+  });
+
+
+  $("#save-fire-update").click(function(){
+
+    $.each(chosenAreaInfo, function(index1, value1) {
+      //var tempColor = value1.colorNum;
+      $.each(value1.chosenArea,function(index2,value2){
+        // convert 1D into 2D, this is coz of recordChosenAreaInfo using 1D but veg2DGrid is 2D
+        var tempRow = Math.floor(value2/vegColNum);
+        var tempCol = value2%vegColNum;
+        // 2 means on fire by users
+        onFireCell[tempRow][tempCol] = 2;
+        var tempColor = hexToRgb(colorScale[1]);
+        var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
+
+        // canvas2DContext.fillStyle = colorScale[0];
+        canvas2DContext.fillStyle = tempColorString;
+        //                          start x,     y,            width,    height
+        canvas2DContext.fillRect(vegCellWidth*tempCol,vegCellHeight*tempRow,vegCellWidth,vegCellHeight);
+
+      });
+    });
+
+
+  // TODO need to merge fire update and veg post
+  $("#post-fire-update").click(function(){
+    // var wind_x = $('#wind_x').val().toString();
+    // var wind_y = $('#wind_y').val().toString();
+    // post the update info back to server
+    $.ajax({
+        type : "POST",
+        url : "/api/update_fire_file",
+        data: JSON.stringify(
+          {
+            fire_2D_grid: onFireCell
+          }, null, '\t'),
+        contentType: 'application/json',
+        success: function(result) {
+
+          $.get('/api/update_fire_file', function(data){
+              inputJson = JSON.parse(data);
+              fireCurrent = inputJson["fire_data"].slice();
+              $('#startButtonID').trigger("click");
+          });
+
+        }
+    });
+
+  });
+
+
+    // TODO send changes back to server
+
+    // update map overlay
+    // updateMapOverlay();
+  });
 
   // this is from http://www.html5canvastutorials.com/advanced/html5-canvas-mouse-coordinates/
   // get the mouse position, based on px
