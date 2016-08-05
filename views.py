@@ -26,6 +26,17 @@ def obtain_fire_data():
 
     return util.fire_out_file_processing(output_file)
 
+@app.route('/api/wind_data')
+def obtain_wind_data():
+    '''
+    this function is used to get the wind data
+    '''
+    data_folder = app_path + '/static/data'
+    wind_x_file = data_folder+'/temp_windx.fuel'
+    wind_y_file = data_folder+'/temp_windy.fuel'
+
+    return util.wind_file_processing(wind_x_file,wind_y_file)
+
 @app.route('/api/fire_data/metadata')
 def obtain_fire_meta_data():
     output_file = app_path + '/static/data/temp_final_tests.csv'

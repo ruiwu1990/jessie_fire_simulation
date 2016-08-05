@@ -17,13 +17,14 @@
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBINKUFZugKXNT1ieZy315WFViufQUZvv4"
     async defer></script>
     <script type="text/javascript" src="/static/js/overlay_google_map.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.xcolor.min.js"></script>
     <script type="text/javascript" src="/static/js/wind_modification.js"></script>
 
 </head>
 <body>
 
 <style>
-    #vegetation-type-selector {
+    #wind-type-selector {
       margin: 15px;
       border: 2px solid red;
       border-radius: 5px;
@@ -34,66 +35,46 @@
     a.remove-veg-update:hover {
       cursor: pointer;
     }
-    span.legend {
+    /*span.legend {
       display: inline-block;
-    }
+    }*/
 </style>
 
 <div class="container">
     <div class="row">
         
         <div class='row'>
-            <h4>Please select a vegetation type</h4>
-            <div id="vegetation-type-selector" class="btn-group" data-toggle="buttons">
-                {% for item in veg_option %}
-                    {% if loop.index0 == 0 %}
-                    <label class="btn btn-custom active" >
-                    {% else %}  
-                    <label class="btn btn-custom" >
-                    {% endif %}  
-                        <input id={{loop.index0}} type="radio" value={{item}}
-                               name="vegcode-select" autocomplete="off">
-                               <!-- for more shapes http://www.w3schools.com/charsets/ref_utf_geometric.asp -->
-                        <span class="legend" id="{{loop.index0}}square">&#9635;</span>
-                        {{item}}
+            <h4>Wind Modification</h4>
+            <div>
+                <!-- <button class="btn btn-default" id="global-wind-modification">
+                  Global Wind Modification
+                </button>
+                <button class="btn btn-default" id="area-wind-modification"> 
+                  Select Area Modification
+                </button> -->
+                <div class="btn-group" data-toggle="buttons" id='wind-type-selector'>
+                    <label class="btn btn-custom active" id="global-wind-modification-label">
+                        <input id='global-wind-modification' type="radio" value='0' autocomplete="off">
+                        Global Wind Modification
                     </label>
-                {% endfor %}
-            </div>
-            <div>
-                <button class="btn btn-default" id="save-veg-update"> <!--style="width: 40%">-->
-                  Confirm Vegetation Modification
-                </button>
-                <button class="btn btn-default" id="post-veg-update"> <!--style="width: 40%">-->
-                  Rerun Model with Updated Veg Info
-                </button>
+
+                    <label class="btn btn-custom" id="area-wind-modification-label">
+                        <input id='area-wind-modification' type="radio" value='1' autocomplete="off">
+                        Select Area Modification
+                    </label>
+                </div>
+
+                <div>
+                    <button class="btn btn-default" id="save-wind-update">
+                      Area Selection Completed
+                    </button>
+                    <button class="btn btn-default" id="post-wind-update">
+                      Rerun Model
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class='row'>
-            <h4>If you want to change which cells on fire</h4>
-            <div>
-                <button class="btn btn-default" id="save-fire-update"> <!--style="width: 40%">-->
-                  Fire Selection Completed
-                </button>
-                <button class="btn btn-default" id="post-fire-update"> <!--style="width: 40%">-->
-                  Run Model
-                </button>
-            </div>
-        </div>
-
-<!--         <div class='row'>
-            <h4>If you want to change the global wind</h4>
-            <form role="form">
-                <div class="form-group">
-                  <label for="wind_x">Wind X</label>
-                  <input type='number' step='0.01' class="form-control" id="wind_x" value=0>
-                </div>
-                <div class="form-group">
-                  <label for="wind_y">Wind Y</label>
-                  <input type='number' step='0.01' class="form-control" id="wind_y" value=0>
-                </div>
-            </form>
-        </div> -->
 
         <div class='row'>
             <h4>Display fire simulation with 2D map</h4>
@@ -104,14 +85,8 @@
 
         <div class='row'>
             <div id='buttonDivID'>
-                <button id="startButtonID" class="btn btn-default" >
-                    Start/Continue
-                </button>
-                <button id="stopButtonID" class="btn btn-default" >
-                    Stop
-                </button>
-                <button id="getOnFireButtonID" class="btn btn-default" >
-                    Get On Fire Info
+                <button id="veg-modification" class="btn btn-default" onclick="location.href='/veg_modification';">
+                    Vegetation Modification
                 </button>
             </div>
 

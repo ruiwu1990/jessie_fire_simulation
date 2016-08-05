@@ -4,8 +4,8 @@ $(document).ready(function(){
   var inputJson;
 
   // set up the canvas size
-  var cellWidth = 1;
-  var cellHeight = 1;
+  var cellWidth = 5;
+  var cellHeight = 5;
 
   // canvas col and row num
   var dataX;
@@ -57,7 +57,6 @@ $(document).ready(function(){
   // TODO this part should not be hard coded
   var veg_type_num = [];
 
-  var setIntervalID;
 
   // these for veg type modification
   var vegColorScale = [];
@@ -73,25 +72,27 @@ $(document).ready(function(){
 
   var onFireCell = [];
 
+  var windX;
+  var windY;
+  var colorScaleX;
+  var colorScaleY;
+  var uniqueX;
+  var uniqueY;
 
-  $.get('/api/fire_data', function(data){
+  $.get('/api/wind_data', function(data){
 
     inputJson = JSON.parse(data);
 
     // grab col and row num
-    dataX = inputJson['num_cols'];
-    dataY = inputJson['num_rows'];
-    
-    fireOrigin = inputJson["fire_data"].slice();
-    onFireCell = inputJson["fire_data"].slice();
+    dataX = parseInt(inputJson['num_cols']);
+    dataY = parseInt(inputJson['num_rows']);
 
-    var maxTime = inputJson['max_val'];
-    var notsetfireVal = inputJson['notsetfire_Val'];
+    windX = inputJson["wind_data_x"].slice();
+    windY = inputJson["wind_data_y"].slice();
 
+    uniqueX = inputJson["unique_x"].slice();
+    uniqueY = inputJson["unique_y"].slice();
 
-    // // should not use var fireCurrent = fireOrigin
-    // // coz when we change fireCurrent and then fireOrigin will change too
-    fireCurrent = fireOrigin.slice();
 
     canvasWidth = cellWidth*dataX;
     canvasHeight = cellHeight*dataY;
@@ -107,45 +108,46 @@ $(document).ready(function(){
     canvas2DContext = canvasHandle.getContext("2d");
 
     // for current version, we only have on fire and not on fire
-    // var scaleSize = 2;
-    // colorScale = chroma.scale(['green','red']).colors(scaleSize);
-    colorScale = ['#00FF00','#FF0000'];
+    var scaleSizeX = uniqueX.length;
+    if(scaleSizeX == 1)
+    {
+      colorScaleX = ['blue'];
+    }
+    else
+    {
+      colorScaleX = chroma.scale(['blue','red']).colors(scaleSizeX);
+    }
+
+    var scaleSizeY = uniqueY.length;
+    if(scaleSizeX == 1)
+    {
+      colorScaleY = ['blue'];
+    }
+    else
+    {
+      colorScaleY = chroma.scale(['blue','red']).colors(scaleSizeY);
+    }
+    
+
+    //colorScale = ['#00FF00','#FF0000'];
 
     initCanvas();
 
-    $('#startButtonID').on('click',function(){
-      setIntervalID = setInterval(updateCanvas, 10);
-
-      $('#stopButtonID').on('click',function(){
-        clearInterval(setIntervalID);
-      });
-
-      $('#getOnFireButtonID').on('click',function(){
-        clearInterval(setIntervalID);
-        var onFireInfo = getOnFireInfo();
-        $.ajax({
-              type : "POST",
-              url : "/api/update_fire_info",
-              data: JSON.stringify(
-                {
-                  fire_info_arr: onFireInfo,
-                  num_cols: dataX,
-                  num_rows: dataY
-                }, null, '\t'),
-              contentType: 'application/json',
-              success: function(result) {
-
-              }
-          });
-
-      });
-    });
-    
-
-
   });
 
+  // dynamically create array
+  // function is from http://stackoverflow.com/questions/966225/how-can-i-create-a-two-dimensional-array-in-javascript/966938#966938
+  function createArray(length) {
+    var arr = new Array(length || 0),
+        i = length;
 
+    if (arguments.length > 1) {
+        var args = Array.prototype.slice.call(arguments, 1);
+        while(i--) arr[length-1 - i] = createArray.apply(this, args);
+    }
+
+    return arr;
+  }
 
   function getOnFireInfo()
   {
@@ -171,7 +173,7 @@ $(document).ready(function(){
   }
   // TODO, cannot use url to get google map image based on the two corners
   function setupBackgroundMap()
-  {veg2DGrid[tempRow][tempCol] = value1.colorNum
+  {
     // backgroundMap.onload = function(){
     //   canvas2DContext.globalAlpha = 0.5;
     //   canvas2DContext.drawImage(backgroundMap, 0, 0);
@@ -194,23 +196,24 @@ $(document).ready(function(){
   // this function is used to update canvas (fire cell) with the current fire code
   function updateCanvas()
   {
-
-      canvas2DContext.globalAlpha = 1.0;
-      var tempColor = hexToRgb(colorScale[1]);
-      var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
+      var tempIndexX;
+      var tempIndexY;
+      var tempColorX;
+      var tempColorY;
       for(var m=0 ; m<dataY ; m++)
       {
         for(var i=0 ; i<dataX ; i++)
         {
-          
-          if(currentTime == parseInt(fireCurrent[m][i]))
-          {
-            canvas2DContext.fillStyle = tempColorString;
-            //                          start x,     y,            width,    height
-            canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
-            // draw lines to separate cell
-            //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
-          }
+          tempIndexX = uniqueX.indexOf(windX[m][i]);
+          tempColorX = colorScaleX[tempIndexX];
+          tempIndexY = uniqueY.indexOf(windY[m][i]);
+          tempColorY = colorScaleY[tempIndexY];
+          // use the toolkit to merge two color
+          canvas2DContext.fillStyle = $.xcolor.average(tempColorX, tempColorY);;
+          //                          start x,     y,            width,    height
+          canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
+          // draw lines to separate cell
+          //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
         }
       }
       //canvas2DContext.stroke();
@@ -220,30 +223,7 @@ $(document).ready(function(){
   }
   function initCanvas()
   {
-      // for current version, onfire 2D grid cell num should be >= then veg grid cell num 
-      $.get('/api/veg_data',function(data){
-        vegJson = JSON.parse(data);
-        vegMetaData = vegJson['meta_data'];
-        vegCode = vegJson['veg_code'];
-        veg2DGrid = vegJson['grid_data'];
-        vegColorScale = chroma.scale(['white','green']).colors(vegCode.length);
-        // change rock value into black
-        vegColorScale[vegCode.indexOf(99)] = '#000000';
-
-        vegColNum = parseInt(vegMetaData[0][1]);
-        vegRowNum = parseInt(vegMetaData[1][1]);
-        vegCellWidth = canvasWidth/vegColNum;
-        vegCellHeight = canvasHeight/vegRowNum;
-
-        // generate button color
-        for(var i=0; i<vegColorScale.length; i++)
-        {
-          $("#"+i.toString()+"square").css("color",vegColorScale[i]);
-        }
-        updateVeg();
-
-      });
-      
+      updateCanvas();
   }
 
   // componentToHex, rgbToHex, and hexToRgb from http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
@@ -267,14 +247,14 @@ $(document).ready(function(){
   {
 
     canvas2DContext.globalAlpha = 0.5;
-    for(var m=0 ; m<vegRowNum ; m++)
+    for(var m=0 ; m<dataY ; m++)
     {
-      for(var i=0 ; i<vegColNum ; i++)
+      for(var i=0 ; i<dataX ; i++)
       {
         // canvas2DContext.fillStyle = colorScale[0];
         canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(veg2DGrid[m][i]))];
         //                          start x,     y,            width,    height,          opacity
-        canvas2DContext.fillRect(vegCellWidth*i,vegCellHeight*m,vegCellWidth,vegCellHeight);
+        canvas2DContext.fillRect(canvasWidth*i,canvasHeight*m,canvasWidth,canvasHeight);
         // draw lines to separate cell
         //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
       }
@@ -327,61 +307,17 @@ $(document).ready(function(){
             //parseInt($('input[name="vegcode-select"]:checked').val());
       chosenAreaInfo.push({colorNum:colorOptNum,chosenArea:chosenHRU});
       chosenHRU=[];
-    });
-
-  $("#save-veg-update").click(function(){
-
-    $.each(chosenAreaInfo, function(index1, value1) {
-      //var tempColor = value1.colorNum;
-      $.each(value1.chosenArea,function(index2,value2){
-        // convert 1D into 2D, this is coz of recordChosenAreaInfo using 1D but veg2DGrid is 2D
-        var tempRow = Math.floor(value2/vegColNum);
-        var tempCol = value2%vegColNum;
-        veg2DGrid[tempRow][tempCol] = value1.colorNum;
-
-        // canvas2DContext.fillStyle = colorScale[0];
-        canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(value1.colorNum))];
-        //                          start x,     y,            width,    height
-        canvas2DContext.fillRect(vegCellWidth*tempCol,vegCellHeight*tempRow,vegCellWidth,vegCellHeight);
-
-      });
-    });
-
-  $("#post-veg-update").click(function(){
-    // post the update info back to server
-    // var wind_x = $('#wind_x').val().toString();
-    // var wind_y = $('#wind_y').val().toString();
-    $.ajax({
-        type : "POST",
-        url : "/api/update_veg_file",
-        data: JSON.stringify(
-          {
-            veg_meta: vegMetaData,
-            veg_2D_grid: veg2DGrid
-          }, null, '\t'),
-        contentType: 'application/json',
-        success: function(result) {
-
-          $.get('/api/update_veg_file', function(data){
-              inputJson = JSON.parse(data);
-              fireCurrent = inputJson["fire_data"].slice();
-              $('#startButtonID').trigger("click");
-          });
-
-        }
-    });
-
   });
 
-
-    // TODO send changes back to server
-
-    // update map overlay
-    // updateMapOverlay();
+  $('#global-wind-modification-label').click(function(){
+    alert('1');
   });
 
+  $('#area-wind-modification-label').click(function(){
+    alert('2');
+  });
 
-  $("#save-fire-update").click(function(){
+  $("#save-wind-update").click(function(){
 
     $.each(chosenAreaInfo, function(index1, value1) {
       //var tempColor = value1.colorNum;
@@ -404,7 +340,7 @@ $(document).ready(function(){
 
 
   // TODO need to merge fire update and veg post
-  $("#post-fire-update").click(function(){
+  $("#post-wind-update").click(function(){
     // var wind_x = $('#wind_x').val().toString();
     // var wind_y = $('#wind_y').val().toString();
     // post the update info back to server

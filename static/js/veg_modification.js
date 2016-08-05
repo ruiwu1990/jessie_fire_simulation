@@ -123,35 +123,6 @@ $(document).ready(function(){
 
     initCanvas();
 
-    // $('#startButtonID').on('click',function(){
-    //   setIntervalID = setInterval(updateCanvas, 10);
-
-    //   $('#stopButtonID').on('click',function(){
-    //     clearInterval(setIntervalID);
-    //   });
-
-    //   $('#getOnFireButtonID').on('click',function(){
-    //     clearInterval(setIntervalID);
-    //     var onFireInfo = getOnFireInfo();
-    //     $.ajax({
-    //           type : "POST",
-    //           url : "/api/update_fire_info",
-    //           data: JSON.stringify(
-    //             {
-    //               fire_info_arr: onFireInfo,
-    //               num_cols: dataX,
-    //               num_rows: dataY
-    //             }, null, '\t'),
-    //           contentType: 'application/json',
-    //           success: function(result) {
-
-    //           }
-    //       });
-
-    //   });
-    // });
-    
-
 
   });
 

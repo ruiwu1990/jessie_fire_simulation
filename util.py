@@ -40,6 +40,64 @@ def fire_out_file_processing(fire_out_file):
     fp.close()
     return json.dumps(json_dict)
 
+
+def wind_file_processing(wind_x_file,wind_y_file):
+    '''
+    this function process the input csv file and generate json file
+    '''
+    # I am kind of hard coded here to grab meta data
+    # without using pandas, coz jessie file is not quit csv style
+    a,unique_x = wind_file_process(wind_x_file)
+    a,unique_y = wind_file_process(wind_y_file)
+    fp1 = open(wind_x_file)
+    fp2 = open(wind_y_file)
+    
+    num_cols = fp1.readline().strip().split(' ')[-1]
+    num_rows = fp1.readline().strip().split(' ')[-1]
+    let_top_lat = fp1.readline().strip().split(' ')[-1]
+    left_top_long = fp1.readline().strip().split(' ')[-1]
+    cell_size = fp1.readline().strip().split(' ')[-1]
+    no_data_value = fp1.readline().strip().split(' ')[-1]
+    
+    wind_data_x = []
+    for line in fp1:
+        
+        temp_list = line.strip().split(' ')
+        # do this coz the last line can be empty
+        if temp_list != ['']:
+            temp_list = [int(i) for i in temp_list]
+        wind_data_x.append(temp_list)
+
+    # still hard coded here to get rid of the meta data
+    num_cols = fp2.readline().strip().split(' ')[-1]
+    num_rows = fp2.readline().strip().split(' ')[-1]
+    let_top_lat = fp2.readline().strip().split(' ')[-1]
+    left_top_long = fp2.readline().strip().split(' ')[-1]
+    cell_size = fp2.readline().strip().split(' ')[-1]
+    no_data_value = fp2.readline().strip().split(' ')[-1]
+    
+    wind_data_y = []
+    for line in fp2:
+        temp_list = line.strip().split(' ')
+        # do this coz the last line can be empty
+        if temp_list != ['']:
+            temp_list = [int(i) for i in temp_list]
+        wind_data_y.append(temp_list)
+
+    json_dict = {'let_top_lat':let_top_lat,\
+                 'left_top_long':left_top_long,\
+                 'num_rows':num_rows,\
+                 'num_cols':num_cols,\
+                 'cell_size':cell_size,\
+                 'no_data_value':no_data_value,\
+                 'wind_data_x':wind_data_x,\
+                 'wind_data_y':wind_data_y,\
+                 'unique_x':unique_x,\
+                 'unique_y':unique_y}
+    fp1.close()
+    fp2.close()
+    return json.dumps(json_dict)
+
 def generate_onfire_cell(aim_file, base_file):
     '''
     this function returns a file contains 2D on fire cells
@@ -288,6 +346,42 @@ def get_veg_types(veg_out_file):
     result_list.sort()
     file_handle.close()
     return meta_data, result_list, veg_grid_data
+
+def wind_file_process(wind_file):
+    '''
+    this function is used to get possible wind values
+    '''
+    # use this list to record all the possible veg types
+    result_list = []
+    # this records the meta data info
+    meta_data = []
+    # this records the two dimensional veg grid data
+    # veg_grid_data = []
+    file_handle = open(wind_file)
+    meta_data_line_num = 6
+    # for current version skip meta data part
+    for i in range(meta_data_line_num):
+        line = file_handle.readline().strip().split()
+        meta_data.append(line)
+    while True:
+        line = file_handle.readline().strip()
+        if line == '':
+            # either end of file or just a blank line.....
+            # For all jessie fire files, it should be eof
+            break
+        else:
+            temp_list = line.split(' ')
+            # veg_grid_data.append(temp_list)
+            for i in temp_list:
+                if i not in result_list:
+                    result_list.append(i)
+    # convert all the element into int
+    result_list = [int(m) for m in result_list]
+    # sort
+    result_list.sort()
+    file_handle.close()
+    return meta_data, result_list
+    # return meta_data, result_list, veg_grid_data
 
 def veg_out_file_processing(veg_out_file,num_rows,num_cols):
     '''
