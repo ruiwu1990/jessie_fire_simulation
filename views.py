@@ -107,6 +107,17 @@ def get_update_veg():
     folder = app_path + '/static/data/'
     return send_from_directory(folder,filename)
 
+@app.route('/api/update_wind',methods=['POST'])
+def post_update_veg():
+    # hard coded for now, to get the choose the input file
+    wind_x = 'temp_windx.fuel'
+    wind_y = 'temp_windy.fuel'
+    folder = app_path + '/static/data/'
+    wind_x_data = request.json['wind_x_data']
+    wind_y_data = request.json['wind_y_data']
+    print wind_x_data
+    return 'success'
+
 
 @app.route('/fire_vis/<folder_name>')
 def fire_vis_func(folder_name=''):

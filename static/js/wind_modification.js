@@ -62,8 +62,7 @@ $(document).ready(function(){
   var vegColorScale = [];
   var veg2DGrid = [];
   var vegJson;
-  var vegCellWidth;
-  var vegCellHeight;
+
   var vegColNum;
   var vegRowNum;
   var chosenAreaInfo=[];
@@ -149,28 +148,7 @@ $(document).ready(function(){
     return arr;
   }
 
-  function getOnFireInfo()
-  {
-      var temparr = [];
-      var outarr=[];
-      for(var m=0 ; m<dataY ; m++)
-      {
-        temparr = [];
-        for(var i=0 ; i<dataX ; i++)
-        {
-          if(currentTime >= parseInt(fireCurrent[m][i]))
-          {
-            temparr.push('1');
-          }
-          else
-          {
-            temparr.push('0');
-          }
-        }
-        outarr.push(temparr);
-      }
-      return outarr;
-  }
+  
   // TODO, cannot use url to get google map image based on the two corners
   function setupBackgroundMap()
   {
@@ -243,25 +221,7 @@ $(document).ready(function(){
           b: parseInt(result[3], 16)
       } : null;
   }
-  function updateVeg()
-  {
-
-    canvas2DContext.globalAlpha = 0.5;
-    for(var m=0 ; m<dataY ; m++)
-    {
-      for(var i=0 ; i<dataX ; i++)
-      {
-        // canvas2DContext.fillStyle = colorScale[0];
-        canvas2DContext.fillStyle = vegColorScale[vegCode.indexOf(parseInt(veg2DGrid[m][i]))];
-        //                          start x,     y,            width,    height,          opacity
-        canvas2DContext.fillRect(canvasWidth*i,canvasHeight*m,canvasWidth,canvasHeight);
-        // draw lines to separate cell
-        //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
-      }
-    }
-    //canvas2DContext.stroke();
-    setupBackgroundMap();
-  }
+  
 
   $("#myCanvas")
     .mousedown(function(evt){
@@ -303,9 +263,10 @@ $(document).ready(function(){
       }
        // push the final chosen area into chosenAreaInfo
       // get the current chosen color number
-      var colorOptNum = parseInt($('#vegetation-type-selector label.active input').val());
-            //parseInt($('input[name="vegcode-select"]:checked').val());
-      chosenAreaInfo.push({colorNum:colorOptNum,chosenArea:chosenHRU});
+      var tempWindX = $('#wind_x').val();
+      var tempWindY = $('#wind_y').val();
+      //parseInt($('input[name="vegcode-select"]:checked').val());
+      chosenAreaInfo.push({updateWindX:tempWindX, updateWindY:tempWindY, chosenArea:chosenHRU});
       chosenHRU=[];
   });
 
@@ -322,18 +283,23 @@ $(document).ready(function(){
     $.each(chosenAreaInfo, function(index1, value1) {
       //var tempColor = value1.colorNum;
       $.each(value1.chosenArea,function(index2,value2){
-        // convert 1D into 2D, this is coz of recordChosenAreaInfo using 1D but veg2DGrid is 2D
-        var tempRow = Math.floor(value2/vegColNum);
-        var tempCol = value2%vegColNum;
-        // 2 means on fire by users
-        onFireCell[tempRow][tempCol] = 2;
-        var tempColor = hexToRgb(colorScale[1]);
+        windX[value2[0]][value2[1]] = parseInt(value1.updateWindX);
+        // TODO, change color based on input values
+        var tempColor = hexToRgb('#832510');
         var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
 
         // canvas2DContext.fillStyle = colorScale[0];
         canvas2DContext.fillStyle = tempColorString;
         //                          start x,     y,            width,    height
-        canvas2DContext.fillRect(vegCellWidth*tempCol,vegCellHeight*tempRow,vegCellWidth,vegCellHeight);
+        canvas2DContext.fillRect(cellWidth*value2[0],cellHeight*value2[1],cellWidth,cellHeight);
+
+      });
+    });
+
+    $.each(chosenAreaInfo, function(index1, value1) {
+      //var tempColor = value1.colorNum;
+      $.each(value1.chosenArea,function(index2,value2){
+        windY[value2[0]][value2[1]] = parseInt(value1.updateWindY);
 
       });
     });
@@ -346,10 +312,11 @@ $(document).ready(function(){
     // post the update info back to server
     $.ajax({
         type : "POST",
-        url : "/api/update_fire_file",
+        url : "/api/update_wind",
         data: JSON.stringify(
           {
-            fire_2D_grid: onFireCell
+            wind_x_data: windX,
+            wind_y_data: windY
           }, null, '\t'),
         contentType: 'application/json',
         success: function(result) {
@@ -385,10 +352,10 @@ $(document).ready(function(){
 
   function changeCanvasCellColor(mousePosition,color)
   {
-    var startX = Math.floor(mousePosition.x/vegCellWidth);
-    var startY = Math.floor(mousePosition.y/vegCellHeight);
+    var startX = Math.floor(mousePosition.x/cellWidth);
+    var startY = Math.floor(mousePosition.y/cellHeight);
     canvas2DContext.fillStyle = color;
-    canvas2DContext.fillRect(startX*vegCellWidth, startY*vegCellHeight, vegCellWidth, vegCellHeight);
+    canvas2DContext.fillRect(startX*cellWidth, startY*cellHeight, cellWidth, cellHeight);
 
     if(clickTime == 1)
     {
@@ -429,7 +396,7 @@ $(document).ready(function(){
         p1.y = temp;
       }
       // Here +1 coz need to count the bottom line too
-      canvas2DContext.fillRect(p1.x*vegCellWidth, p1.y*vegCellHeight, vegCellWidth*(p2.x-p1.x+1), vegCellHeight*(p2.y-p1.y+1));
+      canvas2DContext.fillRect(p1.x*cellWidth, p1.y*cellHeight, cellWidth*(p2.x-p1.x+1), cellHeight*(p2.y-p1.y+1));
     }
     // two points in the same column
     else if(p2.x==p1.x&&p2.y!=p1.y)
@@ -441,7 +408,7 @@ $(document).ready(function(){
         p1.y = temp;
       }
       // Here +1 coz need to count the bottom line too
-      canvas2DContext.fillRect(p1.x*vegCellWidth, p1.y*vegCellHeight, vegCellWidth, vegCellHeight*(p2.y-p1.y+1));
+      canvas2DContext.fillRect(p1.x*cellWidth, p1.y*cellHeight, cellWidth, cellHeight*(p2.y-p1.y+1));
     }
     // two points in the same row
     else if(p2.x!=p1.x&&p2.y==p1.y)
@@ -453,12 +420,12 @@ $(document).ready(function(){
         p1.x = temp;
       }
       // Here +1 coz need to count the bottom line too
-      canvas2DContext.fillRect(p1.x*vegCellWidth, p1.y*vegCellHeight, vegCellWidth*(p2.x-p1.x+1), vegCellHeight);
+      canvas2DContext.fillRect(p1.x*cellWidth, p1.y*cellHeight, cellWidth*(p2.x-p1.x+1), cellHeight);
     }
     // choose the single cell
     else if(p2.x==p1.x&&p2.y==p1.y)
     {
-      canvas2DContext.fillRect(p1.x*vegCellWidth, p1.y*vegCellHeight, vegCellWidth, vegCellHeight);
+      canvas2DContext.fillRect(p1.x*cellWidth, p1.y*cellHeight, cellWidth, cellHeight);
     }
     // push chosen HRU cell num
     recordChosenAreaInfo(p1,p2);
@@ -478,7 +445,8 @@ $(document).ready(function(){
     // single point
     if(p1.x==p2.x && p1.y==p2.y)
     {
-      chosenHRU.push(p1.x+p2.y*vegColNum);
+      //chosenHRU.push(p1.x+p2.y*vegColNum);
+      chosenHRU.push([p1.x,p2.y]);
     }
     else
     {
@@ -486,7 +454,8 @@ $(document).ready(function(){
       {
         for(var i=p1.x; i<=p2.x; i++)
         {
-          chosenHRU.push(i+m*vegColNum);
+          // chosenHRU.push(i+m*vegColNum);
+          chosenHRU.push([i,m]);
         }
       }
     }
