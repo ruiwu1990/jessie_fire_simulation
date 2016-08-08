@@ -115,7 +115,7 @@ def post_update_veg():
     folder = app_path + '/static/data/'
     wind_x_data = request.json['wind_x_data']
     wind_y_data = request.json['wind_y_data']
-    print wind_x_data
+    util.update_wind_file(folder+wind_x,folder+wind_y,wind_x_data,wind_y_data)
     return 'success'
 
 

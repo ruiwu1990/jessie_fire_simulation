@@ -283,7 +283,8 @@ $(document).ready(function(){
     $.each(chosenAreaInfo, function(index1, value1) {
       //var tempColor = value1.colorNum;
       $.each(value1.chosenArea,function(index2,value2){
-        windX[value2[0]][value2[1]] = parseInt(value1.updateWindX);
+        // value2[0] is x, value2[1] is y
+        windX[value2[1]][value2[0]] = parseInt(value1.updateWindX);
         // TODO, change color based on input values
         var tempColor = hexToRgb('#832510');
         var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
@@ -299,7 +300,7 @@ $(document).ready(function(){
     $.each(chosenAreaInfo, function(index1, value1) {
       //var tempColor = value1.colorNum;
       $.each(value1.chosenArea,function(index2,value2){
-        windY[value2[0]][value2[1]] = parseInt(value1.updateWindY);
+        windY[value2[1]][value2[0]] = parseInt(value1.updateWindY);
 
       });
     });
@@ -321,11 +322,7 @@ $(document).ready(function(){
         contentType: 'application/json',
         success: function(result) {
 
-          $.get('/api/update_fire_file', function(data){
-              inputJson = JSON.parse(data);
-              fireCurrent = inputJson["fire_data"].slice();
-              $('#startButtonID').trigger("click");
-          });
+          window.location.replace('/fire_vis_modified');
 
         }
     });

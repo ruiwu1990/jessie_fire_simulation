@@ -152,7 +152,7 @@ $(document).ready(function(){
   }
   // TODO, cannot use url to get google map image based on the two corners
   function setupBackgroundMap()
-  {veg2DGrid[tempRow][tempCol] = value1.colorNum
+  {
     // backgroundMap.onload = function(){
     //   canvas2DContext.globalAlpha = 0.5;
     //   canvas2DContext.drawImage(backgroundMap, 0, 0);

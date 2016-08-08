@@ -250,6 +250,38 @@ def fit_high_resolution_into_low(high_rows,high_cols,low_rows,low_cols,cur_row,c
     aim_row = int(round(float(low_rows*cur_row)/high_rows))
     return aim_row,aim_col
 
+def update_wind_file(wind_x_file,wind_y_file,wind_x_data,wind_y_data):
+    '''
+    this function is used to update wind file
+    '''
+    fp_x = open(wind_x_file,'wb')
+    fp_y = open(wind_y_file,'wb')
+    # hard coded write meta data into file
+    fp_x.write('ncols        287\n')
+    fp_x.write('nrows        203\n')
+    fp_x.write('xllcorner    618828.217566499952\n')
+    fp_x.write('yllcorner    4011107.642806999851\n')
+    fp_x.write('cellsize     30.000000000000\n')
+    fp_x.write('NODATA_value  -9999\n')
+
+    fp_y.write('ncols        287\n')
+    fp_y.write('nrows        203\n')
+    fp_y.write('xllcorner    618828.217566499952\n')
+    fp_y.write('yllcorner    4011107.642806999851\n')
+    fp_y.write('cellsize     30.000000000000\n')
+    fp_y.write('NODATA_value  -9999\n')
+
+    for line in wind_x_data:
+        temp_list = [str(i) for i in line]
+        fp_x.write(' '.join(temp_list)+'\n')
+
+    for line in wind_y_data:
+        temp_list = [str(i) for i in line]
+        fp_y.write(' '.join(temp_list)+'\n')
+
+    fp_x.close()
+    fp_y.close()
+
 def update_on_fire_file(fire_file,fire_2D_grid):
     fp = open(fire_file, 'wb')
     # write meta data
