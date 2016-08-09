@@ -4,8 +4,8 @@ $(document).ready(function(){
   var inputJson;
 
   // set up the canvas size
-  var cellWidth = 5;
-  var cellHeight = 5;
+  var cellWidth = 10;
+  var cellHeight = 10;
 
   // canvas col and row num
   var dataX;
@@ -37,6 +37,7 @@ $(document).ready(function(){
 
   // this is for mouse dragging
   var isDragging = false;
+      //chosenHRU.push(p1.x+p2.y*vegColNum);
   var isMousePressing = false;
   var firstPosition;
   var secondPosition;
@@ -77,6 +78,12 @@ $(document).ready(function(){
   var colorScaleY;
   var uniqueX;
   var uniqueY;
+  // this is for the line arrow drawing
+  var arrow = [
+    [ 1, 0 ],
+    [ -5, -2],
+    [ -5, 2]
+  ];
 
   $.get('/api/wind_data', function(data){
 
@@ -174,24 +181,26 @@ $(document).ready(function(){
   // this function is used to update canvas (fire cell) with the current fire code
   function updateCanvas()
   {
-      var tempIndexX;
-      var tempIndexY;
-      var tempColorX;
-      var tempColorY;
+      // var tempIndexX;
+      // var tempIndexY;
+      // var tempColorX;
+      // var tempColorY;
+
+      var tempLocationArr;
       for(var m=0 ; m<dataY ; m++)
       {
         for(var i=0 ; i<dataX ; i++)
         {
-          tempIndexX = uniqueX.indexOf(windX[m][i]);
-          tempColorX = colorScaleX[tempIndexX];
-          tempIndexY = uniqueY.indexOf(windY[m][i]);
-          tempColorY = colorScaleY[tempIndexY];
-          // use the toolkit to merge two color
-          canvas2DContext.fillStyle = $.xcolor.average(tempColorX, tempColorY);;
-          //                          start x,     y,            width,    height
-          canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
-          // draw lines to separate cell
-          //canvas2DContext.rect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
+          // tempIndexX = uniqueX.indexOf(windX[m][i]);
+          // tempColorX = colorScaleX[tempIndexX];
+          // tempIndexY = uniqueY.indexOf(windY[m][i]);
+          // tempColorY = colorScaleY[tempIndexY];
+          // // use the toolkit to merge two color
+          // canvas2DContext.fillStyle = $.xcolor.average(tempColorX, tempColorY);;
+          // //                          start x,     y,            width,    height
+          // canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
+          tempLocationArr = getStartEndPositions(windX[m][i],windY[m][i],i,m);
+          drawLineArrow(tempLocationArr[0],tempLocationArr[1],tempLocationArr[2],tempLocationArr[3]);
         }
       }
       //canvas2DContext.stroke();
@@ -347,6 +356,47 @@ $(document).ready(function(){
     };
   }
 
+  function getStartEndPositions(tempWindX,tempWindY,col,row)
+  {
+    var tempStartX;
+    var tempStartY;
+    var tempEndX;
+    var tempEndY;
+    var tanAngle = Math.atan(tempWindY/tempWindX);
+    // this is kind of cheated, coz cellWidth == cellHeight
+    var tempYLen = cellWidth*Math.tan(tanAngle);
+    if(tempWindX>=0 && tempWindY>=0)
+    {
+      tempStartX = cellWidth*col;
+      tempEndX = cellWidth*col+cellWidth;
+      tempStartY = cellHeight*row+tempYLen;
+      tempEndY = cellHeight*row;
+    }
+    else if(tempWindX>=0 && tempWindY<0)
+    {
+      tempStartX = cellWidth*col;
+      tempEndX = cellWidth*col+cellWidth;
+      tempStartY = cellHeight*row;
+      tempEndY = cellHeight*row+tempYLen;
+    }
+    else if(tempWindX<0 && tempWindY>=0)
+    {
+      tempStartX = cellWidth*col+cellWidth; 
+      tempEndX = cellWidth*col;
+      tempStartY = cellHeight*row+tempYLen;
+      tempEndY = cellHeight*row;
+    }
+    else if(tempWindX<0 && tempWindY<0)
+    {
+      tempStartX = cellWidth*col+cellWidth; 
+      tempEndX = cellWidth*col;
+      tempStartY = cellHeight*row;
+      tempEndY = cellHeight*row+tempYLen;
+    }
+
+    return [tempStartX,tempStartY,tempEndX,tempEndY];
+  }
+
   function changeCanvasCellColor(mousePosition,color)
   {
     var startX = Math.floor(mousePosition.x/cellWidth);
@@ -467,6 +517,48 @@ $(document).ready(function(){
     return Math.min.apply(null, this);
   };
 
+  
+  // the following five functions are for line arrow drawing on canvas
+  // these five functions are from http://deepliquid.com/blog/archives/98
+  function drawFilledPolygon(shape) {
+      canvas2DContext.beginPath();
+      canvas2DContext.moveTo(shape[0][0],shape[0][1]);
+
+      for(p in shape)
+          if (p > 0) canvas2DContext.lineTo(shape[p][0],shape[p][1]);
+
+      canvas2DContext.lineTo(shape[0][0],shape[0][1]);
+      canvas2DContext.fill();
+  }
+
+  function translateShape(shape,x,y) {
+      var rv = [];
+      for(p in shape)
+          rv.push([ shape[p][0] + x, shape[p][1] + y ]);
+      return rv;
+  }
+
+  function rotateShape(shape,ang) {
+      var rv = [];
+      for(p in shape)
+          rv.push(rotatePoint(ang,shape[p][0],shape[p][1]));
+      return rv;
+  }
+  function rotatePoint(ang,x,y) {
+      return [
+          (x * Math.cos(ang)) - (y * Math.sin(ang)),
+          (x * Math.sin(ang)) + (y * Math.cos(ang))
+      ];
+  }
+
+  function drawLineArrow(x1,y1,x2,y2) {
+      canvas2DContext.beginPath();
+      canvas2DContext.moveTo(x1,y1);
+      canvas2DContext.lineTo(x2,y2);
+      canvas2DContext.stroke();
+      var ang = Math.atan2(y2-y1,x2-x1);
+      drawFilledPolygon(translateShape(rotateShape(arrow,ang),x2,y2));
+  }
 
 
 });
