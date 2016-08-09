@@ -178,7 +178,42 @@ def upload_file_process():
     util.exec_model()
     return render_template("fire_vis.html",veg_option=veg_option)
 
+@app.route('/upload_scenario', methods=['POST'])
+def upload_scenario_process():
+    '''
+    this function is used to process the upload scenario zip
+    '''
+    file1 = 'temp_windx.fuel'
+    file2 = 'temp_windy.fuel'
+    file3 = 'temp_upload_fuel'
+    file4 = 'temp_upload_onfire'
+    file_list = [file1,file2,file3,file4]
+    # save scenario zip file
+    scenario_file = request.files['scenario_file']
+    data_folder = app_path + '/static/data'
+    scenario_file_name = 'scenario_zip'
+    scenario_file_path = data_folder + '/' + scenario_file_name
+    scenario_file.save(scenario_file_path)
+    # extract files from zip file
+    util.process_scenario_file(file_list,scenario_file_name)
+    # do the process and exec here
+    veg_file = app_path + '/static/data/temp_upload_fuel'
+    a,veg_option,c = util.get_veg_types(veg_file)
+    util.exec_model()
+    return render_template("fire_vis.html",veg_option=veg_option)
 
+@app.route('/api/scenario_zip')
+def download_scenario_zip():
+    scenario_file = 'scenario_zip'
+    
+    file1 = 'temp_windx.fuel'
+    file2 = 'temp_windy.fuel'
+    file3 = 'temp_upload_fuel'
+    file4 = 'temp_upload_onfire'
+    file_list = [file1,file2,file3,file4]
+    util.download_scenario_file(file_list,scenario_file)
+    folder = app_path + '/static/data/'
+    return send_from_directory(directory=folder, filename=scenario_file)
 
 @app.route('/upload_files', methods=['POST'])
 def upload_fire_file():

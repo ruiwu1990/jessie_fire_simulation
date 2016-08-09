@@ -3,6 +3,9 @@ import math
 import subprocess
 import os
 import sys
+import zipfile
+
+
 
 # this function process the input csv file and generate json file
 def fire_out_file_processing(fire_out_file):
@@ -514,6 +517,25 @@ def json_veg_info():
     }
     return json.dumps(veg_info_dict)
 
+
+def download_scenario_file(file_list,scenario_file):
+    # the zip function is kind of from http://stackoverflow.com/questions/11240728/zipping-files-in-python
+    # hard coded the zip file name, should get from the config file
+    app_root = os.path.dirname(os.path.abspath(__file__))
+    data_folder = app_root + '/static/data/'
+    zip_name = zipfile.ZipFile(data_folder+'/'+scenario_file,'w')
+    for i in file_list:
+        full_path = data_folder+'/'+i
+        zip_name.write(full_path,i)
+
+def process_scenario_file(file_list,scenario_file):
+    # this function is basically from http://stackoverflow.com/questions/9431918/extracting-zip-file-contents-to-specific-directory-in-python-2-7
+    app_root = os.path.dirname(os.path.abspath(__file__))
+    data_folder = app_root + '/static/data/'
+    zip_name = zipfile.ZipFile(data_folder+'/'+scenario_file,'r')
+    outpath = data_folder + '/'
+    for name in zip_name.namelist():
+        zip_name.extract(name,outpath)
 
 # def line_prepender(filename, line):
 #     '''

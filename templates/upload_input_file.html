@@ -23,7 +23,10 @@
     background-color: #e6f0ff;
     /*padding: 0 90px;*/
 }
-
+#scenarioUploadID {
+    background-color: #ffe6e6;
+    /*padding: 0 90px;*/
+}
 
 </style>
 
@@ -33,7 +36,7 @@
 <div class="container">
     <div class="row">
 
-        <div id='uploadfileDiv' class="col-xs-6">
+        <div id='uploadfileDiv' class="col-xs-4">
             <h4>Please upload input files for fire simulation models</h4>
             <form action="/upload_process" method="post" enctype="multipart/form-data">
                 <p>
@@ -68,7 +71,7 @@
 
         </div>
 
-        <div id='existingDataID' class="col-xs-6">
+        <div id='existingDataID' class="col-xs-4">
             <h4>Here are available datasets</h4>
             <p>
                 <select class="form-control" id='existingSelectBoxID'>
@@ -81,6 +84,22 @@
             <p>
                 <button type="button" class="btn btn-primary" id='confirmButtonID'>Comfirm</button>
             </p>
+
+        </div>
+
+        <div id='scenarioUploadID' class="col-xs-4">
+            <h4>You can upload available scenarios (.zip)</h4>
+            <form action="/upload_scenario" method="post" enctype="multipart/form-data">
+                <p>
+                    <label for="scenarioZipID" >Scenario Zip File
+                        <input type="file" name="scenario_file" id='scenarioZipID' > 
+                    </label>
+                </p>
+                <p>
+                    <input type="submit" value="Upload" class="btn btn-primary">
+                </p>
+
+            </form>
 
         </div>
     </div>
