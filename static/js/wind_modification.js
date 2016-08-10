@@ -187,19 +187,31 @@ $(document).ready(function(){
       // var tempColorY;
 
       var tempLocationArr;
+      var tempStartX;
+      var tempStartY;
       for(var m=0 ; m<dataY ; m++)
       {
         for(var i=0 ; i<dataX ; i++)
         {
-          // tempIndexX = uniqueX.indexOf(windX[m][i]);
-          // tempColorX = colorScaleX[tempIndexX];
-          // tempIndexY = uniqueY.indexOf(windY[m][i]);
-          // tempColorY = colorScaleY[tempIndexY];
-          // // use the toolkit to merge two color
-          // canvas2DContext.fillStyle = $.xcolor.average(tempColorX, tempColorY);;
-          // //                          start x,     y,            width,    height
-          // canvas2DContext.fillRect(cellWidth*i,cellHeight*m,cellWidth,cellHeight);
           tempLocationArr = getStartEndPositions(windX[m][i],windY[m][i],i,m);
+          // clear the area before drawing
+          if(tempLocationArr[2]>tempLocationArr[0])
+          {
+            tempStartX = tempLocationArr[0];
+          }
+          else
+          {
+            tempStartX = tempLocationArr[2];
+          }
+          if(tempLocationArr[3]>tempLocationArr[1])
+          {
+            tempStartY = tempLocationArr[1];
+          }
+          else
+          {
+            tempStartY = tempLocationArr[3];
+          }
+          canvas2DContext.clearRect(tempStartX, tempStartY, Math.abs(tempLocationArr[2]-tempLocationArr[0]), Math.abs(tempLocationArr[3]-tempLocationArr[1]));
           drawLineArrow(tempLocationArr[0],tempLocationArr[1],tempLocationArr[2],tempLocationArr[3]);
         }
       }
@@ -279,64 +291,76 @@ $(document).ready(function(){
       chosenHRU=[];
   });
 
-  $('#global-wind-modification-label').click(function(){
-    alert('1');
+  $('#area-wind-modification-label').click(function(){
+    $('#save-wind-update').html('Area Selection Completed');
   });
 
-  $('#area-wind-modification-label').click(function(){
-    alert('2');
+  $('#global-wind-modification-label').click(function(){
+    $('#save-wind-update').html('Confirm Global Change');
   });
 
   $("#save-wind-update").click(function(){
-
-    $.each(chosenAreaInfo, function(index1, value1) {
-      //var tempColor = value1.colorNum;
-      $.each(value1.chosenArea,function(index2,value2){
-        // value2[0] is x, value2[1] is y
-        windX[value2[1]][value2[0]] = parseInt(value1.updateWindX);
-        // TODO, change color based on input values
-        var tempColor = hexToRgb('#832510');
-        var tempColorString = 'rgba('+tempColor.r.toString()+','+tempColor.g.toString()+','+tempColor.b.toString()+',0.5)';
-
-        // canvas2DContext.fillStyle = colorScale[0];
-        canvas2DContext.fillStyle = tempColorString;
-        //                          start x,     y,            width,    height
-        canvas2DContext.fillRect(cellWidth*value2[0],cellHeight*value2[1],cellWidth,cellHeight);
-
+    // use this method to check if the button is clicked, other methods do no work for me
+    if($('#area-wind-modification-label').attr('class') == 'btn btn-custom active')
+    {
+      var tempLocationArr;
+      $.each(chosenAreaInfo, function(index1, value1) {
+        //var tempColor = value1.colorNum;
+        $.each(value1.chosenArea,function(index2,value2){
+          // value2[0] is x, value2[1] is y
+          windX[value2[1]][value2[0]] = parseInt(value1.updateWindX);
+        });
       });
-    });
 
-    $.each(chosenAreaInfo, function(index1, value1) {
-      //var tempColor = value1.colorNum;
-      $.each(value1.chosenArea,function(index2,value2){
-        windY[value2[1]][value2[0]] = parseInt(value1.updateWindY);
+      $.each(chosenAreaInfo, function(index1, value1) {
+        //var tempColor = value1.colorNum;
+        $.each(value1.chosenArea,function(index2,value2){
+          windY[value2[1]][value2[0]] = parseInt(value1.updateWindY);
 
+        });
       });
-    });
 
-
-  // TODO need to merge fire update and veg post
-  $("#post-wind-update").click(function(){
-    // var wind_x = $('#wind_x').val().toString();
-    // var wind_y = $('#wind_y').val().toString();
-    // post the update info back to server
-    $.ajax({
-        type : "POST",
-        url : "/api/update_wind",
-        data: JSON.stringify(
-          {
-            wind_x_data: windX,
-            wind_y_data: windY
-          }, null, '\t'),
-        contentType: 'application/json',
-        success: function(result) {
-
-          window.location.replace('/fire_vis_modified');
-
+      // update the wind map
+      updateCanvas();
+    }
+    else if($('#global-wind-modification-label').attr('class') == 'btn btn-custom active')
+    {
+      var tempWindX = $('#wind_x').val();
+      var tempWindY = $('#wind_y').val();
+      for(var m=0 ; m<dataY ; m++)
+      {
+        for(var i=0 ; i<dataX ; i++)
+        {
+          
+          windX[m][i] = tempWindX;
+          windY[m][i] = tempWindY;
         }
-    });
+      }
+      updateCanvas(); 
+    }
+    
 
-  });
+
+    // TODO need to merge fire update and veg post
+    $("#post-wind-update").click(function(){
+      // post the update info back to server
+      $.ajax({
+          type : "POST",
+          url : "/api/update_wind",
+          data: JSON.stringify(
+            {
+              wind_x_data: windX,
+              wind_y_data: windY
+            }, null, '\t'),
+          contentType: 'application/json',
+          success: function(result) {
+
+            window.location.replace('/fire_vis_modified');
+
+          }
+      });
+
+    });
 
 
     // TODO send changes back to server
@@ -417,6 +441,7 @@ $(document).ready(function(){
       showChosenRecArea(firstPoint,secondPoint);
 
     }
+
 
   }
 
@@ -557,6 +582,7 @@ $(document).ready(function(){
       canvas2DContext.lineTo(x2,y2);
       canvas2DContext.stroke();
       var ang = Math.atan2(y2-y1,x2-x1);
+      canvas2DContext.fillStyle = 'black';
       drawFilledPolygon(translateShape(rotateShape(arrow,ang),x2,y2));
   }
 
