@@ -73,6 +73,15 @@ $(document).ready(function(){
 
   var onFireCell = [];
 
+  var arrow = [
+    [ 1, 0 ],
+    [ -5, -2],
+    [ -5, 2]
+  ];
+
+  var windX;
+  var windY;
+
 
   $.get('/api/fire_data', function(data){
 
@@ -124,14 +133,16 @@ $(document).ready(function(){
       {
         $(this).attr('value','stop');
         //$(this).html('Stop');
-        $this.text('Stop');
+        // $this.text('Stop');
+        $('#buttonIconID').text('pause_circle_filled');
       }
       // stop
       else
       {
         $(this).attr('value','start');
         //$(this).html('Start');
-        $this.text('Start');
+        // $this.text('Start');
+        $('#buttonIconID').text('play_circle_filled');
       }
       if($('#input-choose-on-fire').is(":checked") && temp_val == 'start')
       {
@@ -172,7 +183,8 @@ $(document).ready(function(){
                   fireCurrent = inputJson["fire_data"].slice();
                   startFire();
                   $this.button('reset');
-                  $this.text('Stop');
+                  // $this.text('Stop');
+                  $('#buttonIconID').text('pause_circle_filled');
               });
             }
 

@@ -18,6 +18,8 @@
     async defer></script>
     <script type="text/javascript" src="/static/js/overlay_google_map.js"></script>
     <script type="text/javascript" src="/static/js/fire_2D_map.js"></script>
+    <!-- This is for the icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
 </head>
 <body>
@@ -77,7 +79,8 @@
 <!--                 <button id="startButtonID" class="btn btn-default" value='start'>
                     Start
                 </button> -->
-                <button class="btn btn-primary start" id="startButtonID" value='start' data-loading-text="<i class='icon-upload icon-white'>loading...</i>">Start</button>
+                <button class="btn btn-primary start" id="startButtonID" value='start' data-loading-text="<i class='icon-upload icon-white'>loading...</i>"><i class="material-icons" id='buttonIconID'>play_circle_filled</i></button>
+                <!-- <button class="btn btn-primary start" id="startButtonID" value='start' data-loading-text="loading...">Start</button> -->
 
                 <button id="downloadScenarioButtonID" class="btn btn-default" value='download_scenario' onclick="window.location.href='/api/scenario_zip'">
                     Download Scenario

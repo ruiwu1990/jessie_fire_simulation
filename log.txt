@@ -13,7 +13,9 @@ Spread Data Calculated
 3.09222
 3.79405
 3.84111
-1.21421
+4.07462
+5.88155
+1.85921
 BD Init
 
 left_top_lat 61.8819
@@ -1330,12 +1332,12 @@ cols: 905
 rows: 641
 cols: 905
 rows: 642
-25215
+18
 Propgation Copy To Device
 BD Copy TOA From Device
 BD Copy WINDX From Device
 BD Copy WINDY From Device
-Processing Simulation took 1.93046 seconds
+Processing Simulation took 1.9402 seconds
 0
 0
 0

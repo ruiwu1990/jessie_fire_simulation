@@ -55,29 +55,15 @@ $(document).ready(function(){
   var backgroundMap = new Image();
   var canvasSize = [];
 
-  // TODO this part should not be hard coded
-  var veg_type_num = [];
 
-
-  // these for veg type modification
-  var vegColorScale = [];
-  var veg2DGrid = [];
-  var vegJson;
-
-  var vegColNum;
-  var vegRowNum;
   var chosenAreaInfo=[];
-  var vegCode;
-  var vegMetaData;
-
-  var onFireCell = [];
 
   var windX;
   var windY;
-  var colorScaleX;
-  var colorScaleY;
-  var uniqueX;
-  var uniqueY;
+  // var colorScaleX;
+  // var colorScaleY;
+  // var uniqueX;
+  // var uniqueY;
   // this is for the line arrow drawing
   var arrow = [
     [ 1, 0 ],
@@ -96,8 +82,8 @@ $(document).ready(function(){
     windX = inputJson["wind_data_x"].slice();
     windY = inputJson["wind_data_y"].slice();
 
-    uniqueX = inputJson["unique_x"].slice();
-    uniqueY = inputJson["unique_y"].slice();
+    // uniqueX = inputJson["unique_x"].slice();
+    // uniqueY = inputJson["unique_y"].slice();
 
 
     canvasWidth = cellWidth*dataX;
@@ -113,26 +99,26 @@ $(document).ready(function(){
     canvasHandle = document.getElementById("myCanvas");
     canvas2DContext = canvasHandle.getContext("2d");
 
-    // for current version, we only have on fire and not on fire
-    var scaleSizeX = uniqueX.length;
-    if(scaleSizeX == 1)
-    {
-      colorScaleX = ['blue'];
-    }
-    else
-    {
-      colorScaleX = chroma.scale(['blue','red']).colors(scaleSizeX);
-    }
+    // // for current version, we only have on fire and not on fire
+    // var scaleSizeX = uniqueX.length;
+    // if(scaleSizeX == 1)
+    // {
+    //   colorScaleX = ['blue'];
+    // }
+    // else
+    // {
+    //   colorScaleX = chroma.scale(['blue','red']).colors(scaleSizeX);
+    // }
 
-    var scaleSizeY = uniqueY.length;
-    if(scaleSizeX == 1)
-    {
-      colorScaleY = ['blue'];
-    }
-    else
-    {
-      colorScaleY = chroma.scale(['blue','red']).colors(scaleSizeY);
-    }
+    // var scaleSizeY = uniqueY.length;
+    // if(scaleSizeX == 1)
+    // {
+    //   colorScaleY = ['blue'];
+    // }
+    // else
+    // {
+    //   colorScaleY = chroma.scale(['blue','red']).colors(scaleSizeY);
+    // }
     
 
     //colorScale = ['#00FF00','#FF0000'];
