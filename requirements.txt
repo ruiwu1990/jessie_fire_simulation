@@ -9,3 +9,4 @@ Jinja2==2.8
 numpy==1.10.4
 urllib3==1.15.1
 mongoengine==0.10.6
+#git+https://github.com/ruiwu1990/fire_sim_lib.git@Dockerized
