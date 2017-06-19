@@ -45,8 +45,7 @@ ENV CPLUS_INCLUDE_PATH /usr/include/gdal
 ENV C_INCLUDE_PATH /usr/include/gdal
 
 #build fire lib
-RUN rm -rf fire_sim_lib/build
-RUN mkdir fire_sim_lib/build
+RUN rm -rf fire_sim_lib/build/*
 RUN cd fire_sim_lib/build
 RUN cmake ..
 RUN make
