@@ -1,3 +1,4 @@
-[submodule "fire_sim_lib/"] 
-  path = fire_sim_lib/
-  url = https://github.com/ruiwu1990/fire_sim_lib.git/tree/Dockerized
+[submodule "fire_sim_lib"]
+	path = fire_sim_lib
+	url = https://github.com/ruiwu1990/fire_sim_lib.git
+	branch = Dockerized
