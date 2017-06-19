@@ -39,7 +39,17 @@ ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
 
 
 RUN apt-get update -y
-RUN apt-get install -y python-pip python-dev build-essential
+RUN apt-get install -y python-pip python-dev build-essential cmake gdal-bin libgdal-dev
+
+ENV CPLUS_INCLUDE_PATH /usr/include/gdal
+ENV C_INCLUDE_PATH /usr/include/gdal
+
+#build fire lib
+RUN rm -rf fire_sim_lib/build
+RUN mkdir fire_sim_lib/build
+RUN cd fire_sim_lib/build
+RUN cmake ..
+RUN make
 
 #copy source code
 COPY . /fire_sim
@@ -48,7 +58,6 @@ ENV PYTHONPATH /var/www/fire_sim
 
 #install requirements
 RUN pip install -r requirements.txt
-
 
 EXPOSE 5000
 ENV FIRE_PORT 80
