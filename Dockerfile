@@ -51,9 +51,9 @@ ENV PYTHONPATH /var/www/fire_sim
 
 #build fire lib
 RUN rm -rf /fire_sim/fire_sim_lib/build/* \ 
-    cd /fire_sim/fire_sim_lib/build \ 
-    cmake .. \ 
-    make
+    && cd /fire_sim/fire_sim_lib/build \ 
+    && cmake .. \ 
+    && make
 
 #install requirements
 RUN pip install -r requirements.txt
