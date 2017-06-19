@@ -50,10 +50,10 @@ WORKDIR /fire_sim
 ENV PYTHONPATH /var/www/fire_sim
 
 #build fire lib
-RUN rm -rf fire_sim_lib/build/*
-RUN cd fire_sim_lib/build
-RUN cmake ..
-RUN make
+RUN rm -rf /fire_sim/fire_sim_lib/build/* \ 
+    cd /fire_sim/fire_sim_lib/build \ 
+    cmake .. \ 
+    make
 
 #install requirements
 RUN pip install -r requirements.txt
