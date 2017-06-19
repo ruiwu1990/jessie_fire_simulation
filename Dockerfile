@@ -16,7 +16,7 @@ ENV PYTHONPATH /var/www/fire_sim
 #build fire lib
 RUN rm -rf /fire_sim/fire_sim_lib/build/* \ 
     && cd /fire_sim/fire_sim_lib/build \ 
-    && cmake -D CUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda .. \ 
+    && cmake .. \ 
     && make
 
 #install requirements
