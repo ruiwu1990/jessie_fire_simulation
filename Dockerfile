@@ -1,4 +1,4 @@
-FROM docker pull nvidia/cuda:latest
+FROM nvidia/cuda:latest
 MAINTAINER Rui Wu
 LABEL description="Parts of this docker file is from nvidia/cuda image."
 
