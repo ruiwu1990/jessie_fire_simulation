@@ -479,7 +479,7 @@ def exec_model():
     err_log_path = app_root + '/err_log.txt'
     data_folder = app_root + '/static/data/'
     command = ['./simulator','temp_upload_fuel','temp_upload_onfire','temp_final_tests.csv','temp_windx.fuel','temp_windy.fuel', data_folder]
-    exec_dir = app_root + '/../firesim/build/'
+    exec_dir = app_root + '/fire_sim_lib/build/'
     execute(exec_dir, command, log_path, err_log_path)
 
 def json_veg_info():

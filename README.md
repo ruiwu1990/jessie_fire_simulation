@@ -2,10 +2,10 @@ This is a server for Jessie fire simulation in the backend. Andy and Chase are i
 
 
 #Docker Quick start
-1. All the server components should be run in Ubuntu 16.04.
-2. You need to install the docker engine and here is the official link how to do it:
+1. You need to install the docker engine and here is the official link how to do it:
 [Docker Engine Install Official link](https://docs.docker.com/engine/installation/linux/ubuntu/#install-using-the-repository). 
 The system has been tested with Docker version 17.03 and 17.05
+2. All the server components should work if you have installed docker correctly.
 3. Install 
 
 
@@ -38,3 +38,13 @@ Here is the command to set up and run the program
 python views.py -h 134.197.20.79 -p 5000 --threaded
 ```
 134.197.20.79 should be replaced with your machine ip address. The command is to set up a server with your machine
+
+#Website URL
+The system is available here
+```
+<Your IP>:5000/upload
+```
+For me the URL replaced with my ip is:
+```
+134.197.20.79:5000/upload
+```
