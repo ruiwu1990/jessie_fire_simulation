@@ -37,6 +37,8 @@ RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
 ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
 ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
 
+ENV CUDA_TOOLKIT_ROOT_DIR /usr/local/cuda
+
 
 RUN apt-get update -y
 RUN apt-get install -y python-pip python-dev build-essential cmake gdal-bin libgdal-dev
