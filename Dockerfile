@@ -44,16 +44,16 @@ RUN apt-get install -y python-pip python-dev build-essential cmake gdal-bin libg
 ENV CPLUS_INCLUDE_PATH /usr/include/gdal
 ENV C_INCLUDE_PATH /usr/include/gdal
 
+#copy source code
+COPY . /fire_sim
+WORKDIR /fire_sim
+ENV PYTHONPATH /var/www/fire_sim
+
 #build fire lib
 RUN rm -rf fire_sim_lib/build/*
 RUN cd fire_sim_lib/build
 RUN cmake ..
 RUN make
-
-#copy source code
-COPY . /fire_sim
-WORKDIR /fire_sim
-ENV PYTHONPATH /var/www/fire_sim
 
 #install requirements
 RUN pip install -r requirements.txt
