@@ -6,6 +6,6 @@ Flask-WTF==0.12
 ipython==4.1.2
 ipython-genutils==0.1.0
 Jinja2==2.8
-numpy==1.10.4
+numpy==1.22.0
 urllib3==1.15.1
 mongoengine==0.10.6
